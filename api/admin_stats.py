@@ -1,21 +1,19 @@
 import json
 import os
-import asyncpg
+import traceback
 from http.server import BaseHTTPRequestHandler
+from urllib.parse import urlparse, parse_qs
 from datetime import datetime, timedelta
-import asyncio
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            from urllib.parse import urlparse, parse_qs
             parsed = urlparse(self.path)
             params = parse_qs(parsed.query)
             password = params.get('password', [''])[0]
             
-            # Parolni tekshirish
             if password != 'admin123':
                 self.send_response(401)
                 self.send_header('Content-type', 'application/json')
@@ -23,68 +21,80 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": "Noto'g'ri parol"}).encode())
                 return
             
-            # Ma'lumotlarni olish
-            data = asyncio.run(self.get_stats())
-            
+            data = self.get_stats()
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps(data).encode())
-            
         except Exception as e:
-            # Xatolik yuz bersa, JSON qaytaramiz
+            # Xatolikni batafsil chiqaramiz
+            error_detail = {
+                "error": str(e),
+                "traceback": traceback.format_exc()
+            }
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({"error": str(e)}).encode())
+            self.wfile.write(json.dumps(error_detail).encode())
     
-    async def get_stats(self):
+    def get_stats(self):
         try:
-            conn = await asyncpg.connect(DATABASE_URL)
-            try:
-                # Umumiy statistika
-                total = await conn.fetchval("SELECT COUNT(*) FROM test_results")
-                avg_score = await conn.fetchval("SELECT AVG(score) FROM test_results")
-                max_score = await conn.fetchval("SELECT MAX(score) FROM test_results")
-                avg_band = await conn.fetchval("SELECT AVG(reading_band) FROM test_results")
-                
-                # So'nggi 20 ta natija
-                recent = await conn.fetch(
-                    "SELECT id, full_name, score, reading_band, time_spent, submitted_at FROM test_results ORDER BY id DESC LIMIT 20"
-                )
-                recent_list = []
-                for row in recent:
-                    recent_list.append({
-                        "id": row['id'],
-                        "name": row['full_name'],
-                        "score": row['score'],
-                        "band": float(row['reading_band']),
-                        "time": row['time_spent'],
-                        "date": row['submitted_at'].isoformat() if row['submitted_at'] else None
-                    })
-                
-                # Haftalik statistika
-                week_ago = datetime.now() - timedelta(days=7)
-                week_count = await conn.fetchval(
-                    "SELECT COUNT(*) FROM test_results WHERE submitted_at > $1",
-                    week_ago
-                )
-                week_avg = await conn.fetchval(
-                    "SELECT AVG(score) FROM test_results WHERE submitted_at > $1",
-                    week_ago
-                )
-                
-                return {
-                    "total": total or 0,
-                    "avg_score": round(avg_score or 0, 1),
-                    "max_score": max_score or 0,
-                    "avg_band": round(avg_band or 0, 1),
-                    "week_count": week_count or 0,
-                    "week_avg": round(week_avg or 0, 1),
-                    "recent": recent_list
-                }
-            finally:
-                await conn.close()
-        except Exception as e:
-            # Ma'lumotlar bazasi xatoligini qaytaramiz
-            raise e
+            import psycopg2
+        except ImportError:
+            raise Exception("psycopg2 o'rnatilmagan. Iltimos, requirements.txt ni tekshiring.")
+        
+        if not DATABASE_URL:
+            raise Exception("DATABASE_URL environment variable o'rnatilmagan")
+        
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        try:
+            cur = conn.cursor()
+            
+            cur.execute("SELECT COUNT(*) FROM test_results")
+            total = cur.fetchone()[0] or 0
+            
+            cur.execute("SELECT AVG(score) FROM test_results")
+            avg_score = cur.fetchone()[0] or 0
+            
+            cur.execute("SELECT MAX(score) FROM test_results")
+            max_score = cur.fetchone()[0] or 0
+            
+            cur.execute("SELECT AVG(reading_band) FROM test_results")
+            avg_band = cur.fetchone()[0] or 0
+            
+            cur.execute("""
+                SELECT id, full_name, score, reading_band, time_spent, submitted_at 
+                FROM test_results 
+                ORDER BY id DESC 
+                LIMIT 20
+            """)
+            recent = []
+            for row in cur.fetchall():
+                recent.append({
+                    "id": row[0],
+                    "name": row[1] or 'Anonim',
+                    "score": row[2] or 0,
+                    "band": float(row[3]) if row[3] is not None else 0,
+                    "time": row[4] or 0,
+                    "date": row[5].isoformat() if row[5] else None
+                })
+            
+            week_ago = datetime.now() - timedelta(days=7)
+            cur.execute("SELECT COUNT(*) FROM test_results WHERE submitted_at > %s", (week_ago,))
+            week_count = cur.fetchone()[0] or 0
+            
+            cur.execute("SELECT AVG(score) FROM test_results WHERE submitted_at > %s", (week_ago,))
+            week_avg = cur.fetchone()[0] or 0
+            
+            return {
+                "total": total,
+                "avg_score": round(avg_score, 1),
+                "max_score": max_score,
+                "avg_band": round(avg_band, 1),
+                "week_count": week_count,
+                "week_avg": round(week_avg, 1),
+                "recent": recent
+            }
+        finally:
+            cur.close()
+            conn.close()
