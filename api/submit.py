@@ -23,11 +23,8 @@ class handler(BaseHTTPRequestHandler):
             time_spent = data.get('time_spent', 0)
             
             band = self.calc_band(score)
-            
-            # 1. Bazaga saqlash (psycopg2 sinxron)
             result_id = self.save_result(user_id, name, score, band, answers, time_spent)
             
-            # 2. Kanalga xabar yuborish
             if BOT_TOKEN and CHANNEL_ID:
                 self.send_to_channel(result_id)
             
@@ -35,23 +32,17 @@ class handler(BaseHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({
-                "status": "success",
-                "result_id": result_id,
-                "score": score,
-                "band": band,
+                "status": "success", "result_id": result_id,
+                "score": score, "band": band,
                 "message": f"Natijangiz saqlandi! Ball: {score}/40, Band: {band}"
             }).encode())
-            
         except Exception as e:
             err = traceback.format_exc()
             print(err)
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
-            self.wfile.write(json.dumps({
-                "status": "error",
-                "message": str(e)
-            }).encode())
+            self.wfile.write(json.dumps({"status": "error", "message": str(e)}).encode())
     
     def calc_band(self, score):
         if score >= 39: return 9.0
@@ -66,14 +57,12 @@ class handler(BaseHTTPRequestHandler):
         else: return 4.0
     
     def save_result(self, user_id, full_name, score, band, answers, time_spent):
-        """psycopg2 bilan bazaga saqlash"""
         conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         try:
             cur = conn.cursor()
             cur.execute("""
                 INSERT INTO test_results (user_id, full_name, score, reading_band, answers, time_spent)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                RETURNING id
+                VALUES (%s, %s, %s, %s, %s, %s) RETURNING id
             """, (user_id, full_name, score, band, json.dumps(answers), time_spent))
             result_id = cur.fetchone()[0]
             conn.commit()
@@ -83,7 +72,6 @@ class handler(BaseHTTPRequestHandler):
             conn.close()
     
     def send_to_channel(self, result_id):
-        """Kanalga natija haqida xabar yuborish"""
         try:
             conn = psycopg2.connect(DATABASE_URL, sslmode='require')
             try:
@@ -96,7 +84,7 @@ class handler(BaseHTTPRequestHandler):
                 if not row:
                     return
                 name, score, band, time_spent, submitted_at = row
-                text = (
+                caption = (
                     f"🎯 **Yangi IELTS natijasi!**\n"
                     f"👤 **Ism:** {name}\n"
                     f"📝 **Ball:** {score}/40\n"
@@ -108,15 +96,22 @@ class handler(BaseHTTPRequestHandler):
                 cur.close()
                 conn.close()
             
-            # Telegram API ga so'rov
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+            # QuickChart yordamida grafik yaratish
+            wrong = 40 - score
+            chart_url = f"https://quickchart.io/chart?c={{type:'doughnut',data:{{labels:['To‘g‘ri ({score})', 'Xato ({wrong})'], datasets:[{{data:[{score},{wrong}], backgroundColor:['#48bb78','#fc8181']}}]}}}}"
+            
+            # Send photo with caption
+            send_photo_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
             payload = json.dumps({
                 "chat_id": CHANNEL_ID,
-                "text": text,
+                "photo": chart_url,
+                "caption": caption,
                 "parse_mode": "Markdown"
             }).encode()
-            req = urllib.request.Request(url, data=payload, method='POST')
+            req = urllib.request.Request(send_photo_url, data=payload, method='POST')
             req.add_header('Content-Type', 'application/json')
-            urllib.request.urlopen(req)
+            response = urllib.request.urlopen(req)
+            print(f"Kanalga grafik yuborildi: {response.read().decode()}")
         except Exception as e:
             print(f"Kanalga yuborishda xatolik: {e}")
+            traceback.print_exc()
