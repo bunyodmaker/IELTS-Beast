@@ -72,47 +72,60 @@ class handler(BaseHTTPRequestHandler):
             conn.close()
     
     def send_to_channel(self, result_id):
+    try:
+        conn = psycopg2.connect(DATABASE_URL, sslmode='require')
         try:
-            conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-            try:
-                cur = conn.cursor()
-                cur.execute(
-                    "SELECT full_name, score, reading_band, time_spent, submitted_at FROM test_results WHERE id = %s",
-                    (result_id,)
-                )
-                row = cur.fetchone()
-                if not row:
-                    print(f"Result ID {result_id} topilmadi")
-                    return
-                name, score, band, time_spent, submitted_at = row
-                caption = (
-                    f"🎯 **Yangi IELTS natijasi!**\n"
-                    f"👤 **Ism:** {name}\n"
-                    f"📝 **Ball:** {score}/40\n"
-                    f"📊 **Band:** {band}\n"
-                    f"⏱ **Vaqt:** {time_spent} daqiqa\n"
-                    f"📅 **Sana:** {submitted_at.strftime('%d.%m.%Y %H:%M')}"
-                )
-                # Grafik URL (quickchart.io)
-                wrong = 40 - score
-                chart_url = f"https://quickchart.io/chart?c={{type:'doughnut',data:{{labels:['To‘g‘ri ({score})', 'Xato ({wrong})'], datasets:[{{data:[{score},{wrong}], backgroundColor:['#48bb78','#fc8181']}}]}}}}"
-                caption += f"\n\n📊 Grafik: {chart_url}"
-            finally:
-                cur.close()
-                conn.close()
-            
-            # Xabarni matn sifatida yuborish (grafik URL bilan)
-            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-            payload = json.dumps({
-                "chat_id": CHANNEL_ID,
-                "text": caption,
-                "parse_mode": "Markdown",
-                "disable_web_page_preview": False  # Grafik preview chiqsin
-            }).encode()
-            req = urllib.request.Request(url, data=payload, method='POST')
-            req.add_header('Content-Type', 'application/json')
-            response = urllib.request.urlopen(req)
-            print(f"Kanalga xabar yuborildi: {response.read().decode()}")
-        except Exception as e:
-            print(f"Kanalga yuborishda xatolik: {e}")
-            traceback.print_exc()
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT full_name, score, reading_band, time_spent, submitted_at FROM test_results WHERE id = %s",
+                (result_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                print(f"Result ID {result_id} topilmadi")
+                return
+            name, score, band, time_spent, submitted_at = row
+        finally:
+            cur.close()
+            conn.close()
+        
+        # Grafik URL (to'g'ri format)
+        wrong = 40 - score
+        import json
+        chart_config = {
+            "type": "doughnut",
+            "data": {
+                "labels": [f"To‘g‘ri ({score})", f"Xato ({wrong})"],
+                "datasets": [{
+                    "data": [score, wrong],
+                    "backgroundColor": ["#48bb78", "#fc8181"]
+                }]
+            }
+        }
+        chart_json = json.dumps(chart_config)
+        chart_url = f"https://quickchart.io/chart?c={chart_json}"
+        
+        caption = (
+            f"🎯 **Yangi IELTS natijasi!**\n"
+            f"👤 **Ism:** {name}\n"
+            f"📝 **Ball:** {score}/40\n"
+            f"📊 **Band:** {band}\n"
+            f"⏱ **Vaqt:** {time_spent} daqiqa\n"
+            f"📅 **Sana:** {submitted_at.strftime('%d.%m.%Y %H:%M')}\n\n"
+            f"📊 Grafik: {chart_url}"
+        )
+        
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        payload = json.dumps({
+            "chat_id": CHANNEL_ID,
+            "text": caption,
+            "parse_mode": "Markdown",
+            "disable_web_page_preview": False
+        }).encode()
+        req = urllib.request.Request(url, data=payload, method='POST')
+        req.add_header('Content-Type', 'application/json')
+        response = urllib.request.urlopen(req)
+        print(f"Kanalga xabar yuborildi: {response.read().decode()}")
+    except Exception as e:
+        print(f"Kanalga yuborishda xatolik: {e}")
+        traceback.print_exc()
