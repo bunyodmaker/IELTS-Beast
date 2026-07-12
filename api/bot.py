@@ -4,6 +4,7 @@ import asyncpg
 from http.server import BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, ContextTypes
+from telegram.constants import ParseMode
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -16,12 +17,11 @@ class handler(BaseHTTPRequestHandler):
             body = self.rfile.read(length)
             data = json.loads(body)
             
-            # Bot application yaratish
             app = Application.builder().token(BOT_TOKEN).build()
             app.add_handler(CommandHandler("start", start))
             app.add_handler(CommandHandler("help", help_command))
+            app.add_handler(CommandHandler("status", status))  # YANGI
             
-            # Webhook dan kelgan update ni qayta ishlash
             update = Update.de_json(data, app.bot)
             app.process_update(update)
             
@@ -49,7 +49,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             [InlineKeyboardButton("📝 Testni boshlash", url="https://ielts-beast.vercel.app")]
         ])
     )
-    # Foydalanuvchini bazaga yozib qo'yamiz
     async with asyncpg.create_pool(DATABASE_URL) as pool:
         async with pool.acquire() as conn:
             await conn.execute(
@@ -65,26 +64,27 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/status - Natijalaringizni ko'rish"
     )
 
-# Bu funksiya API dan chaqiriladi (test_results ga yozilganda)
-async def send_to_channel(result_id):
-    """Natijalarni kanalga yuborish"""
-    async with asyncpg.create_pool(DATABASE_URL) as pool:
-        async with pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM test_results WHERE id = $1",
-                result_id
-            )
-            if not row:
-                return
-            
-            text = (
-                f"🎯 **Yangi IELTS natijasi!**\n"
-                f"👤 **Ism:** {row['full_name']}\n"
-                f"📝 **Ball:** {row['score']}/40\n"
-                f"📊 **Band:** {row['reading_band']}\n"
-                f"⏱ **Vaqt:** {row['time_spent']} daqiqa\n"
-                f"📅 **Sana:** {row['submitted_at'].strftime('%d.%m.%Y %H:%M')}"
-            )
-            
-            app = Application.builder().token(BOT_TOKEN).build()
-            await app.bot.send_message(chat_id=CHANNEL_ID, text=text)
+# ==================== YANGI: STATUS BUYRUG'I ====================
+async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user_id = update.effective_user.id
+    try:
+        async with asyncpg.create_pool(DATABASE_URL) as pool:
+            async with pool.acquire() as conn:
+                rows = await conn.fetch(
+                    "SELECT score, reading_band, time_spent, submitted_at FROM test_results WHERE user_id = $1 ORDER BY submitted_at DESC LIMIT 5",
+                    user_id
+                )
+        
+        if not rows:
+            await update.message.reply_text("📭 Siz hali hech qanday test topshirmagansiz.")
+            return
+        
+        text = "📊 *So‘nggi 5 ta natijangiz:*\n\n"
+        for i, row in enumerate(rows, 1):
+            date_str = row['submitted_at'].strftime('%d.%m.%Y %H:%M')
+            text += f"{i}. 🎯 Ball: {row['score']}/40 | Band: {row['reading_band']}\n"
+            text += f"   ⏱ Vaqt: {row['time_spent']} daqiqa | 📅 {date_str}\n\n"
+        
+        await update.message.reply_text(text, parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        await update.message.reply_text(f"❌ Xatolik yuz berdi: {e}")
