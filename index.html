@@ -1,37 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IELTS Secure Exam Platform</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<style>
-    body.dark-mode { background: #1f2937; color: #e5e7eb; }
-    body.dark-mode .test-container,
-    body.dark-mode .passage-container,
-    body.dark-mode .questions-container,
-    body.dark-mode .question,
-    body.dark-mode .footer,
-    body.dark-mode .submission-content,
-    body.dark-mode .reg-card { background: #374151; color: #e5e7eb; border-color: #4b5563; }
-    body.dark-mode .header { background: #1e40af; border-color: #4b5563; }
-    body.dark-mode input[type="text"], body.dark-mode select { background: #4b5563; color: #fff; border-color: #6b7280; }
-    
-    .test-container { display: flex; height: calc(100vh - 120px); overflow: hidden; }
-    .passage-container, .questions-container { width: 50%; overflow-y: auto; padding: 24px; }
-    .passage-container { border-right: 2px solid #e5e7eb; }
-    
-    .highlight-yellow { background-color: #fef08a; color: #000; }
-    .highlight-green { background-color: #bbf7d0; color: #000; }
-    .highlight-blue { background-color: #bfdbfe; color: #000; }
-    .highlight-pink { background-color: #fbcfe8; color: #000; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IELTS Secure Exam Platform</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body.dark-mode { background: #1f2937; color: #e5e7eb; }
+        body.dark-mode .test-container,
+        body.dark-mode .passage-container,
+        body.dark-mode .questions-container,
+        body.dark-mode .footer,
+        body.dark-mode .submission-content,
+        body.dark-mode .reg-card { background: #374151; color: #e5e7eb; border-color: #4b5563; }
+        body.dark-mode .header { background: #1e40af; border-color: #4b5563; }
+        body.dark-mode input[type="text"], body.dark-mode select { background: #4b5563; color: #fff; border-color: #6b7280; }
+        
+        .test-container { display: flex; height: calc(100vh - 120px); overflow: hidden; }
+        .passage-container, .questions-container { width: 50%; overflow-y: auto; padding: 24px; }
+        .passage-container { border-right: 2px solid #e5e7eb; }
+        
+        .highlight-yellow { background-color: #fef08a; color: #000; }
+        .highlight-green { background-color: #bbf7d0; color: #000; }
+        .highlight-blue { background-color: #bfdbfe; color: #000; }
+        .highlight-pink { background-color: #fbcfe8; color: #000; }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col h-screen select-none">
 
-<!-- REGISTRATION SCREEN -->
 <div id="reg-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 p-4">
     <div class="reg-card bg-white p-8 rounded-2xl max-w-md w-full shadow-2xl space-y-6">
         <div class="text-center space-y-2">
@@ -49,9 +47,7 @@
     </div>
 </div>
 
-<!-- MAIN APPLICATION INTERFACE -->
 <div id="main-app" class="flex flex-col h-screen hidden">
-    <!-- HEADER -->
     <header class="header bg-blue-700 text-white px-6 py-3 flex justify-between items-center shadow-md z-10">
         <div class="flex items-center space-x-4">
             <h1 class="text-xl font-bold tracking-tight"><i class="fas fa-lock mr-2"></i>IELTS Proctored Exam</h1>
@@ -69,67 +65,162 @@
         </div>
     </header>
 
-    <!-- TEST CONTAINER -->
     <main class="test-container flex-1">
         <div class="passage-container bg-white select-text" id="passage-viewport">
             <article id="passage-1" class="space-y-4">
                 <h2 class="text-xl font-black">Passage 1: Chocolate for the Masses</h2>
-                <p><strong>A</strong> For thousands of years, chocolate was consumed not as a solid sweet but as a bitter, frothy liquid. The ancient Maya and Aztecs revered the cacao bean, brewing it with chili peppers, vanilla, and water...</p>
-                <p><strong>B</strong> The transformation of chocolate from an elite beverage to a mass-produced solid confection was triggered by industrial innovations in the 19th century. The watershed moment arrived in 1828, when Dutch chemist Coenraad van Houten patented a mechanical hydraulic press...</p>
+                <p><strong>A</strong> For thousands of years, chocolate was consumed not as a solid sweet but as a bitter, frothy liquid. The ancient Maya and Aztecs revered the cacao bean, brewing it with chili peppers, vanilla, and water. This drink, which they called xocolatl, was restricted to royalty, priests, and honored warriors. It was prized not only for its complex flavor but also for its perceived medicinal qualities and its role in sacred rituals. Cacao beans were so valuable that they functioned as a form of currency throughout Mesoamerica, making the consumption of the beverage a literal display of wealth.</p>
+                <p><strong>B</strong> The transformation of chocolate from an elite beverage to a mass-produced solid confection was triggered by industrial innovations in the 19th century. The watershed moment arrived in 1828, when Dutch chemist Coenraad van Houten patented a mechanical hydraulic press. Van Houten’s apparatus successfully extracted the heavy cacao butter from the roasted beans, leaving behind a dry cake that could be pulverized into a fine powder. This process, combined with his method of treating the powder with alkaline salts to reduce bitterness (now known as "Dutching"), made chocolate affordable and easier to mix with milk or water, laying the groundwork for modern industrial production.</p>
+                <p><strong>C</strong> Recognizing the commercial potential of this processed cocoa, British manufacturing firms quickly sought to refine it further. In 1847, J.S. Fry & Sons made a monumental breakthrough by combining cocoa powder, sugar, and melted cocoa butter to create the world’s first commercially viable eating chocolate format. Shortly thereafter, in 1875, Swiss chocolatier Daniel Peter partnered with Henri Nestlé, who had recently invented condensed milk, to introduce milk chocolate to the global market. This new iteration prioritized uniformity and affordability, appealing directly to the tastes of the burgeoning middle class.</p>
+                <p><strong>D</strong> As the demand for chocolate skyrocketed across Europe and North America, manufacturing processes shifted toward hyper-efficiency and cost reduction. Large-scale factories began utilizing continuous-motion assembly lines, turning what had once been a handcrafted luxury item into a generic, wrapped commodity. By the mid-20th century, major corporations dominated the market, optimizing formulas for shelf-life and mass distribution. To maintain low prices, these companies increasingly relied on bulk purchasing agreements and automated refining processes, effectively separating the final product from the artisanal traditions of its origins.</p>
+                <p><strong>E</strong> In recent decades, however, a profound counter-movement has emerged within the global confectionery sector. Disillusioned by the homogeneity of mass-produced candy bars, a new generation of chocolatiers has revived the "bean-to-bar" ethos. This movement emphasizes transparency in the supply chain, direct trade with cacao farmers, and the preservation of distinct regional flavor profiles. Rather than blending beans from multiple origins to achieve a standardized taste, bean-to-bar producers highlight the unique terroir of specific microclimates, mirroring the practices of fine winemaking. Consequently, contemporary consumers increasingly view chocolate not merely as a cheap sugar fix, but as a complex culinary art form worthy of gastronomic appreciation.</p>
             </article>
+
             <article id="passage-2" class="space-y-4 hidden">
                 <h2 class="text-xl font-black">Passage 2: A Study of Western Celebrity</h2>
-                <p><strong>A</strong> The contemporary phenomenon of celebrity is often dismissed as a modern pathology born of social media. However, sociological analysis reveals that fame possesses a deep historical lineage in Western civilization...</p>
+                <p><strong>A</strong> The contemporary phenomenon of celebrity is often dismissed as a modern pathology born of social media. However, sociological analysis reveals that fame possesses a deep historical lineage in Western civilization. Long before the advent of television or internet algorithms, public figures were mythologized and commodified through the available media of their respective eras. The mechanics of public adulation have evolved, but the core psychological and social structures governing the relationship between the public and the celebrated figure remain remarkably consistent across centuries.</p>
+                <p><strong>B</strong> In classical antiquity, renown was intrinsically tied to civic duty, military conquest, or exceptional artistic achievement. The ancient Greeks celebrated their Olympic champions and tragic playwrights, immortalizing them in stone and verse. However, this classical framework of fame differed fundamentally from modern celebrity; it was focused on the public deeds of the individual rather than their private lives. Renown was viewed as a collective civic asset, a means of inspiring virtue among the populace, rather than a vehicle for personal enrichment or idiosyncratic self-expression.</p>
+                <p><strong>C</strong> The transition toward the personalization of fame accelerated during the European Renaissance, driven by the proliferation of the printing press and the rise of portraiture. For the first time, the physical features and personal eccentricities of authors, artists, and monarchs could be replicated and distributed to a wide audience. Figures like Erasmus and Albrecht Dürer became recognizable brands across the continent. This era birthed the concept of the individual genius, whose private thoughts and distinct creative persona were deemed just as valuable as their public outputs, shifting the locus of fame from external actions to internal character.</p>
+                <p><strong>D</strong> The 19th century marked the true dawn of mass-mediated celebrity, coinciding with the Industrial Revolution and the expansion of the popular press. The convergence of steam-powered printing, commercial theater, and early photography allowed public figures to be marketed to the urban working classes on an unprecedented scale. Lord Byron, the Romantic poet, is widely considered one of the first modern celebrities, whose scandalous private life and carefully curated public image generated an intense public obsession that frequently eclipsed his literary output. Similarly, the operatic performances of Franz Liszt triggered a hysteria labeled "Lisztomania," characterized by audience members fighting over his discarded gloves and locks of hair, foreshadowing modern fandom.</p>
+                <p><strong>E</strong> Today, the democratic nature of digital platforms has fundamentally altered the barriers to entry for achieving public prominence. The traditional gatekeepers of fame—studio executives, publicists, and editors—have been largely bypassed by algorithms that reward engagement and algorithmic consistency. Yet, this democratization has also resulted in the fragmentation of the public sphere. Rather than a small cohort of universally recognized figures, the digital landscape produces highly specialized micro-celebrities who command intense loyalty within niche online communities but remain entirely unknown to the broader public, demonstrating that while the reach of fame has expanded, its universality has fractured.</p>
             </article>
+
             <article id="passage-3" class="space-y-4 hidden">
                 <h2 class="text-xl font-black">Passage 3: Research into Teaching Styles</h2>
-                <p>The quest to optimize academic achievement has led to a protracted debate within educational psychology regarding the efficacy of contrasting pedagogical frameworks...</p>
+                <p>The quest to optimize academic achievement has led to a protracted debate within educational psychology regarding the efficacy of contrasting pedagogical frameworks. Broadly categorized, this debate pits teacher-directed instruction against student-centered learning. Teacher-directed approaches, often conceptualized as explicit or direct instruction, prioritize the systematic transmission of structured knowledge from an expert instructor to receptive learners. Proponents argue that this method maximizes instructional efficiency, minimizes cognitive overload, and ensures that fundamental concepts are accurately mastered before students attempt higher-order problem-solving.</p>
+                <p>Conversely, student-centered learning, encompassing constructivist and discovery-based methodologies, posits that meaningful knowledge cannot be passively received but must be actively constructed by the learner. In this paradigm, the educator shifts from the primary source of information to a facilitator of exploration. Students engage in collaborative inquiry, experiential projects, and autonomous research, driving their own educational trajectories. Advocates contend that this approach fosters intrinsic motivation, develops critical thinking skills, and prepares individuals for the unstructured complexities of real-world environments.</p>
+                <p>Empirical research investigating these competing methodologies has yielded highly nuanced, and occasionally contradictory, outcomes. A comprehensive meta-analysis conducted by the National Institute of Pedagogical Studies indicated that for novice learners acquiring foundational skills in mathematics and literacy, explicit instruction demonstrated a statistically significant advantage in standardized test performance. The structured nature of direct instruction provides essential cognitive scaffolding, preventing the frustration and misconceptions that frequently arise when students are left to discover complex rule systems independently.</p>
+                <p>However, the longitudinal data paint a vastly different picture when assessing long-term retention and the transfer of knowledge to novel contexts. Longitudinal studies tracking students over a five-year trajectory revealed that those exposed to student-centered environments in secondary education exhibited superior adaptability and problem-solving capabilities when transitioning to tertiary academic institutions. While these students initially demonstrated lower performance on rote memorization assessments, their capacity to synthesize disparate information streams and execute independent research projects ultimately surpassed that of their peers who had been trained under rigid pedagogical models.</p>
+                <p>Ultimately, the consensus among contemporary educational researchers is shifting away from a binary choice between these two styles, moving instead toward an integrated model known as guided discovery. This hybrid framework acknowledges that both structure and autonomy are vital components of successful learning environments. Instructors utilizing guided discovery provide clear foundational concepts and explicit safety parameters initially, but gradually withdraw this support as students demonstrate competence, systematically encouraging autonomous exploration and critical inquiry. By blending the efficiency of direct instruction with the cognitive engagement of student-centered learning, educators can tailor their pedagogical interventions to match the evolving expertise of their students.</p>
             </article>
         </div>
 
         <div class="questions-container bg-gray-50 space-y-6">
             <div id="questions-1" class="space-y-4">
-                <h3 class="font-bold">Questions 1-3 (Passage 1)</h3>
-                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
-                    <span>1. First commercially viable eating chocolate format.</span>
-                    <select id="q1" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+                <h3 class="font-bold text-lg text-blue-700">Questions 1-5 (Passage 1)</h3>
+                <p class="text-xs text-gray-500 italic">Match the descriptions to the correct paragraph (A-E).</p>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">1. First commercially viable eating chocolate format.</span>
+                    <select id="q1" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select>
                 </div>
-                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
-                    <span>2. Prioritized uniformity and affordability.</span>
-                    <select id="q2" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">2. Prioritized uniformity and affordability.</span>
+                    <select id="q2" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select>
                 </div>
-                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
-                    <span>3. Historical use of cacao beans as currency.</span>
-                    <select id="q3" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">3. Historical use of cacao beans as currency.</span>
+                    <select id="q3" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">4. Shifted toward hyper-efficiency and cost reduction.</span>
+                    <select id="q4" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">5. Revived the "bean-to-bar" ethos.</span>
+                    <select id="q5" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select>
+                </div>
+
+                <h3 class="font-bold text-lg text-blue-700 mt-6">Questions 6-13</h3>
+                <p class="text-xs text-gray-500 italic">Complete the sentences below. Choose NO MORE THAN TWO WORDS from the passage.</p>
+                <div class="bg-white p-4 border rounded-xl space-y-3 shadow-sm">
+                    <div class="flex items-center space-x-2"><span class="text-sm">6. Maya and Aztecs called the cacao drink</span><input type="text" id="q6" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">7. Drink was restricted to royalty, priests, and</span><input type="text" id="q7" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">8. Van Houten patented a mechanical</span><input type="text" id="q8" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">9. Apparatus extracted heavy cacao</span><input type="text" id="q9" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">10. Method of treating powder with alkaline salts is</span><input type="text" id="q10" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">11. J.S. Fry & Sons combined cocoa powder, sugar, and</span><input type="text" id="q11" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">12. Henri Nestlé invented</span><input type="text" id="q12" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
+                    <div class="flex items-center space-x-2"><span class="text-sm">13. Factories utilized continuous-motion</span><input type="text" id="q13" oninput="markAttempted()" class="border p-1.5 rounded-lg w-40 text-sm"></div>
                 </div>
             </div>
             
             <div id="questions-2" class="space-y-4 hidden">
-                <h3 class="font-bold">Questions 14-15 (Passage 2)</h3>
-                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
-                    <span>14. Classical frameworks celebrated unique personalities.</span>
-                    <select id="q14" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option></select>
+                <h3 class="font-bold text-lg text-blue-700">Questions 14-18 (Passage 2)</h3>
+                <p class="text-xs text-gray-500 italic">Do the following statements agree with the information given in Passage 2? Choose TRUE, FALSE or NOT GIVEN.</p>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">14. Classical frameworks celebrated unique personalities.</span>
+                    <select id="q14" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">15. Renaissance portraits allowed physical traits replication.</span>
+                    <select id="q15" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">16. Lord Byron hated public obsession with his life.</span>
+                    <select id="q16" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">17. Lisztomania foreshadowed modern fandom mechanics.</span>
+                    <select id="q17" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">18. Digital algorithms completely eliminate micro-celebrities.</span>
+                    <select id="q18" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+
+                <h3 class="font-bold text-lg text-blue-700 mt-6">Questions 19-26</h3>
+                <p class="text-xs text-gray-500 italic">Match each statement with the correct historical period (A-C).</p>
+                <div class="bg-white p-4 border rounded-xl space-y-3 shadow-sm">
+                    <p class="text-xs font-bold text-gray-400">A: Classical Antiquity | B: European Renaissance | C: 19th Century</p>
+                    <div class="flex items-center justify-between"><span class="text-sm">19. Individual genius concept was born.</span><select id="q19" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">20. Renown was a collective civic asset.</span><select id="q20" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">21. Popular press expanded drastically.</span><select id="q21" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">22. Focus was exclusively on public deeds.</span><select id="q22" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">23. Recognized brands emerged continent-wide.</span><select id="q23" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">24. Coincided with the Industrial Revolution.</span><select id="q24" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">25. Birth of personal eccentricities mapping.</span><select id="q25" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
+                    <div class="flex items-between justify-between"><span class="text-sm">26. Steam-powered printing altered the distribution.</span><select id="q26" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select></div>
                 </div>
             </div>
 
             <div id="questions-3" class="space-y-4 hidden">
-                <h3 class="font-bold">Questions 27-28 (Passage 3)</h3>
-                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
-                    <span>27. Direct instruction works best for empirical concepts.</span>
-                    <select id="q27" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select>
+                <h3 class="font-bold text-lg text-blue-700">Questions 27-31 (Passage 3)</h3>
+                <p class="text-xs text-gray-500 italic">Do the following statements agree with the views of the writer? Choose YES, NO or NOT GIVEN.</p>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">27. Direct instruction works best for empirical concepts.</span>
+                    <select id="q27" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">28. Student-centered learning minimizes motivation.</span>
+                    <select id="q28" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">29. Meta-analysis proved scaffolding avoids confusion.</span>
+                    <select id="q29" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">30. Rigid pedagogical training enhances synthesis models.</span>
+                    <select id="q30" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between shadow-sm">
+                    <span class="text-sm">31. Guided discovery isolates student autonomy completely.</span>
+                    <select id="q31" onchange="markAttempted()" class="border p-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option></select>
+                </div>
+
+                <h3 class="font-bold text-lg text-blue-700 mt-6">Questions 32-40</h3>
+                <p class="text-xs text-gray-500 italic">Complete the summary below using the list of words (A-I).</p>
+                <div class="bg-white p-4 border rounded-xl space-y-3 shadow-sm">
+                    <p class="text-xs text-gray-400">A: Explicit | B: Novice | C: Rote | D: Secondary | E: Integrated | F: Hybrid | G: Direct | H: Empirical | I: Autonomous</p>
+                    <div class="flex items-center justify-between"><span class="text-sm">32. Teacher-directed instruction is known as</span><select id="q32" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">33. Direct methods maximize instructional efficiency for</span><select id="q33" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">34. Scaffolding prevents misconceptions in</span><select id="q34" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">35. Student-centered learning encourages</span><select id="q35" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">36. Long-term environments tracked in</span><select id="q36" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">37. Rigid models score higher initially on</span><select id="q37" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">38. Guided discovery works as an</span><select id="q38" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">39. Discovery framework integrates a</span><select id="q39" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
+                    <div class="flex items-center justify-between"><span class="text-sm">40. Style structure should match student's</span><select id="q40" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option></select></div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- FOOTER -->
     <footer class="footer bg-white border-t px-6 py-4 flex justify-between items-center">
         <span class="text-sm font-medium text-gray-500">Attempted: <span id="footer-attempted" class="font-bold text-gray-900">0</span>/40</span>
         <button onclick="manualSubmit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-2.5 rounded-xl shadow transition">Submit Test</button>
     </footer>
 </div>
 
-<!-- SUBMISSION MODAL -->
 <div id="submissionModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="submission-content bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
         <div id="modalIcon" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl"><i class="fas fa-check"></i></div>
@@ -145,7 +236,15 @@
 </div>
 
 <script>
-const ANSWER_KEYS = { 1: 'C', 2: 'E', 3: 'A', 14: 'FALSE', 27: 'YES' };
+const ANSWER_KEYS = {
+    1: 'C', 2: 'C', 3: 'A', 4: 'D', 5: 'E',
+    6: 'XOCOLATL', 7: 'WARRIORS', 8: 'HYDRAULIC PRESS', 9: 'CACAO BUTTER', 10: 'DUTCHING', 11: 'COCOA BUTTER', 12: 'CONDENSED MILK', 13: 'ASSEMBLY LINES',
+    14: 'FALSE', 15: 'TRUE', 16: 'FALSE', 17: 'TRUE', 18: 'FALSE',
+    19: 'B', 20: 'A', 21: 'C', 22: 'A', 23: 'B', 24: 'C', 25: 'B', 26: 'C',
+    27: 'YES', 28: 'NO', 29: 'YES', 30: 'NO', 31: 'NO',
+    32: 'A', 33: 'B', 34: 'G', 35: 'I', 36: 'D', 37: 'C', 38: 'E', 39: 'F', 40: 'H'
+};
+
 let studentName = "", timeLeft = 3600, timerInterval = null, isSubmitted = false;
 
 function startExam() {
@@ -155,7 +254,6 @@ function startExam() {
     document.getElementById('reg-screen').classList.add('hidden');
     document.getElementById('main-app').classList.remove('hidden');
     
-    // Request Fullscreen for security
     const docEl = document.documentElement;
     if (docEl.requestFullscreen) docEl.requestFullscreen();
     else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
@@ -179,30 +277,32 @@ function startTimer() {
 }
 
 function activateStrictAntiCheat() {
-    // 1. Detect Tab Switched / App Minimization
     document.addEventListener("visibilitychange", () => {
         if (document.hidden && !isSubmitted) {
-            executeFinalSubmission("TERMINATED (Tab/App Switch Detected)");
+            executeFinalSubmission("TERMINATED (Tab/App Switch Disqualification)");
         }
     });
 
-    // 2. Detect Fullscreen Exit
-    document.addEventListener("fullscreenchange", () => {
-        if (!document.fullscreenElement && !isSubmitted) {
+    const exitHandler = () => {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !isSubmitted) {
             executeFinalSubmission("TERMINATED (Exit Fullscreen Disqualification)");
         }
-    });
-    document.addEventListener("webkitfullscreenchange", () => {
-        if (!document.webkitFullscreenElement && !isSubmitted) {
-            executeFinalSubmission("TERMINATED (Exit Fullscreen Disqualification)");
-        }
-    });
+    };
+    document.addEventListener("fullscreenchange", exitHandler);
+    document.addEventListener("webkitfullscreenchange", exitHandler);
 }
 
 function switchPart(p) {
     for(let i=1; i<=3; i++) {
         document.getElementById(`passage-${i}`).classList.toggle('hidden', i!==p);
         document.getElementById(`questions-${i}`).classList.toggle('hidden', i!==p);
+        
+        let tab = document.getElementById(`tab-p${i}`);
+        if(i===p) {
+            tab.className = "px-3 py-1 text-sm font-medium rounded-md bg-blue-600 text-white shadow-sm";
+        } else {
+            tab.className = "px-3 py-1 text-sm font-medium rounded-md text-blue-200 ml-1";
+        }
     }
 }
 
@@ -210,7 +310,7 @@ function markAttempted() {
     let count = 0;
     for(let i=1; i<=40; i++) {
         let el = document.getElementById(`q${i}`);
-        if(el && el.value !== "") count++;
+        if(el && el.value.trim() !== "") count++;
     }
     document.getElementById('footer-attempted').textContent = count;
 }
@@ -230,20 +330,27 @@ function executeFinalSubmission(statusReason) {
     for(let i=1; i<=40; i++) {
         let el = document.getElementById(`q${i}`);
         if(!el) { unattempted++; continue; }
-        if(el.value === "") { unattempted++; }
-        else if(el.value === ANSWER_KEYS[i]) { correct++; }
+        
+        let val = el.value.trim().toUpperCase();
+        if(val === "") { unattempted++; }
+        else if(val === ANSWER_KEYS[i]) { correct++; }
         else { wrong++; }
     }
     
     let band = 1.0;
     if(correct >= 39) band = 9.0;
+    else if(correct >= 37) band = 8.5;
     else if(correct >= 35) band = 8.0;
+    else if(correct >= 33) band = 7.5;
     else if(correct >= 30) band = 7.0;
+    else if(correct >= 27) band = 6.5;
     else if(correct >= 23) band = 6.0;
+    else if(correct >= 19) band = 5.5;
     else if(correct >= 15) band = 5.0;
-    else band = 4.0;
+    else if(correct >= 13) band = 4.5;
+    else if(correct >= 10) band = 4.0;
+    else band = 3.5;
 
-    // Adjust Modal UI if disqualified
     if(statusReason.includes("TERMINATED")) {
         document.getElementById('modalIcon').className = "w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-2xl";
         document.getElementById('modalIcon').innerHTML = '<i class="fas fa-ban"></i>';
@@ -265,7 +372,7 @@ function executeFinalSubmission(statusReason) {
                        `❌ *Wrong Answers:* ${wrong}\n` +
                        `⚪ *Unattempted:* ${unattempted}\n` +
                        `----------------------------------------\n` +
-                       `🎯 *FINAL IELTS BAND:*  💎 [ ${band.toFixed(1)} ] 💎\n` +
+                       `🎯 *FINAL IELTS BAND:* 💎 [ ${band.toFixed(1)} ] 💎\n` +
                        `🛡️ *Platform:* Controlled Environment`;
 
     sendToTelegramAPI(reportText);
@@ -283,7 +390,13 @@ function sendToTelegramAPI(text) {
 
 function exitExamPlatform() {
     if (document.exitFullscreen) document.exitFullscreen();
-    window.Telegram?.WebApp?.close();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    
+    if(window.Telegram?.WebApp?.close) {
+        window.Telegram.WebApp.close();
+    } else {
+        window.location.reload();
+    }
 }
 
 function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
