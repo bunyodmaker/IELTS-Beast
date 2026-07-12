@@ -25,7 +25,6 @@ class handler(BaseHTTPRequestHandler):
             text = message.get('text', '')
             
             if chat_id:
-                # Tugma bosilganda yoki matn yozilganda
                 if text == '/start':
                     self.send_menu(chat_id)
                 elif text == '/help' or text == '❓ Yordam':
@@ -43,7 +42,7 @@ class handler(BaseHTTPRequestHandler):
             self.wfile.write(b"OK")
         except Exception as e:
             err = traceback.format_exc()
-            print(err)
+            print("BOT XATOLIK:", err)
             self.send_response(500)
             self.end_headers()
             self.wfile.write(f"Error: {e}".encode())
@@ -54,41 +53,51 @@ class handler(BaseHTTPRequestHandler):
         self.wfile.write(b"Webhook is active")
 
     def send_menu(self, chat_id):
-        """Tugmali menyu yuborish"""
-        keyboard = {
-            "keyboard": [
-                ["📝 Test boshlash", "📊 Natijalarim"],
-                ["❓ Yordam"]
-            ],
-            "resize_keyboard": True,
-            "one_time_keyboard": False
-        }
-        payload = json.dumps({
-            "chat_id": chat_id,
-            "text": "Assalomu alaykum! Quyidagi tugmalardan birini tanlang:",
-            "reply_markup": keyboard
-        }).encode()
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        req = urllib.request.Request(url, data=payload, method='POST')
-        req.add_header('Content-Type', 'application/json')
-        urllib.request.urlopen(req)
-
-    def send_message(self, chat_id, text, menu=False):
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        payload = {"chat_id": chat_id, "text": text}
-        if menu:
+        """Tugmali menyu yuborish - to'g'ri format"""
+        try:
             keyboard = {
                 "keyboard": [
                     ["📝 Test boshlash", "📊 Natijalarim"],
                     ["❓ Yordam"]
                 ],
-                "resize_keyboard": True
+                "resize_keyboard": True,
+                "one_time_keyboard": False
             }
-            payload["reply_markup"] = keyboard
-        payload = json.dumps(payload).encode()
-        req = urllib.request.Request(url, data=payload, method='POST')
-        req.add_header('Content-Type', 'application/json')
-        urllib.request.urlopen(req)
+            payload = json.dumps({
+                "chat_id": chat_id,
+                "text": "Assalomu alaykum! Quyidagi tugmalardan birini tanlang:",
+                "reply_markup": keyboard
+            }).encode()
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+            req = urllib.request.Request(url, data=payload, method='POST')
+            req.add_header('Content-Type', 'application/json')
+            response = urllib.request.urlopen(req)
+            print(f"Menyu yuborildi: {response.read().decode()}")
+        except Exception as e:
+            print(f"Menyu yuborishda xatolik: {e}")
+            traceback.print_exc()
+
+    def send_message(self, chat_id, text, menu=False):
+        try:
+            payload = {"chat_id": chat_id, "text": text}
+            if menu:
+                keyboard = {
+                    "keyboard": [
+                        ["📝 Test boshlash", "📊 Natijalarim"],
+                        ["❓ Yordam"]
+                    ],
+                    "resize_keyboard": True
+                }
+                payload["reply_markup"] = keyboard
+            payload = json.dumps(payload).encode()
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+            req = urllib.request.Request(url, data=payload, method='POST')
+            req.add_header('Content-Type', 'application/json')
+            response = urllib.request.urlopen(req)
+            print(f"Xabar yuborildi: {response.read().decode()}")
+        except Exception as e:
+            print(f"Xabar yuborishda xatolik: {e}")
+            traceback.print_exc()
 
     async def get_user_results(self, user_id):
         try:
