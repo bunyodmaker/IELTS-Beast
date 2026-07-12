@@ -215,59 +215,61 @@
         document.getElementById('passwordInput').value = '';
     }
 
-    async function loadData() {
-        const loading = document.getElementById('loadingIndicator');
-        const tableWrapper = document.getElementById('tableWrapper');
-        loading.classList.remove('hidden');
-        tableWrapper.classList.add('hidden');
+   async function loadData() {
+    const loading = document.getElementById('loadingIndicator');
+    const tableWrapper = document.getElementById('tableWrapper');
+    loading.classList.remove('hidden');
+    tableWrapper.classList.add('hidden');
 
-        try {
-            const response = await fetch('/api/admin_stats.py?password=' + ADMIN_PASSWORD);
-            if (!response.ok) {
-                throw new Error('Ma\'lumotlarni olishda xatolik');
-            }
-            const data = await response.json();
-
-            // Statistikani yangilash
-            document.getElementById('totalTests').textContent = data.total || 0;
-            document.getElementById('avgScore').textContent = data.avg_score || 0;
-            document.getElementById('maxScore').textContent = data.max_score || 0;
-            document.getElementById('avgBand').textContent = data.avg_band || 0;
-            document.getElementById('weekCount').textContent = data.week_count || 0;
-            document.getElementById('weekAvg').textContent = data.week_avg || 0;
-
-            // Jadvalni to'ldirish
-            const tbody = document.getElementById('resultsBody');
-            tbody.innerHTML = '';
-            if (data.recent && data.recent.length > 0) {
-                data.recent.forEach((row, index) => {
-                    const tr = document.createElement('tr');
-                    const band = row.band || 0;
-                    let badgeClass = 'badge-mid';
-                    if (band >= 7) badgeClass = 'badge-high';
-                    else if (band < 5) badgeClass = 'badge-low';
-                    
-                    tr.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${row.name || 'Anonim'}</td>
-                        <td>${row.score || 0}</td>
-                        <td><span class="badge ${badgeClass}">${band}</span></td>
-                        <td>${row.time || 0}</td>
-                        <td>${row.date ? new Date(row.date).toLocaleString('uz-UZ') : '-'}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } else {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#4a5568;">Hozircha natijalar yo‘q</td></tr>';
-            }
-
-            loading.classList.add('hidden');
-            tableWrapper.classList.remove('hidden');
-        } catch (error) {
-            loading.textContent = '❌ Xatolik: ' + error.message;
-            loading.classList.remove('hidden');
+    try {
+        const response = await fetch('/api/admin_stats.py?password=' + ADMIN_PASSWORD);
+        if (!response.ok) {
+            // Xatolik matnini o'qib, chiqaramiz
+            const text = await response.text();
+            throw new Error('Server javobi: ' + response.status + ' - ' + text);
         }
+        const data = await response.json();
+        
+        // Statistikani yangilash
+        document.getElementById('totalTests').textContent = data.total || 0;
+        document.getElementById('avgScore').textContent = data.avg_score || 0;
+        document.getElementById('maxScore').textContent = data.max_score || 0;
+        document.getElementById('avgBand').textContent = data.avg_band || 0;
+        document.getElementById('weekCount').textContent = data.week_count || 0;
+        document.getElementById('weekAvg').textContent = data.week_avg || 0;
+
+        // Jadvalni to'ldirish
+        const tbody = document.getElementById('resultsBody');
+        tbody.innerHTML = '';
+        if (data.recent && data.recent.length > 0) {
+            data.recent.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                const band = row.band || 0;
+                let badgeClass = 'badge-mid';
+                if (band >= 7) badgeClass = 'badge-high';
+                else if (band < 5) badgeClass = 'badge-low';
+                
+                tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${row.name || 'Anonim'}</td>
+                    <td>${row.score || 0}</td>
+                    <td><span class="badge ${badgeClass}">${band}</span></td>
+                    <td>${row.time || 0}</td>
+                    <td>${row.date ? new Date(row.date).toLocaleString('uz-UZ') : '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#4a5568;">Hozircha natijalar yo‘q</td></tr>';
+        }
+
+        loading.classList.add('hidden');
+        tableWrapper.classList.remove('hidden');
+    } catch (error) {
+        loading.textContent = '❌ Xatolik: ' + error.message;
+        loading.classList.remove('hidden');
     }
+}
 
     // Enter tugmasi bilan login
     document.getElementById('passwordInput').addEventListener('keydown', function(e) {
