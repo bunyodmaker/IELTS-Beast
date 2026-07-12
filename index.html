@@ -3,928 +3,290 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reading Test</title>
+<title>IELTS Secure Exam Platform</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* Dark Mode Styles */
-    body.dark-mode {
-        background: #1f2937;
-        color: #e5e7eb;
-    }
+    body.dark-mode { background: #1f2937; color: #e5e7eb; }
     body.dark-mode .test-container,
     body.dark-mode .passage-container,
     body.dark-mode .questions-container,
-    body.dark-mode .sectionRubric,
     body.dark-mode .question,
     body.dark-mode .footer,
-    body.dark-mode .submission-content {
-        background: #374151;
-        color: #e5e7eb;
-        border-color: #4b5563;
-    }
-    body.dark-mode .header {
-        background: #1e40af;
-        border-color: #4b5563;
-    }
-    body.dark-mode .header__timer {
-        background: #1e40af;
-        color: #93c5fd;
-        border-color: #93c5fd;
-    }
-    body.dark-mode .highlight-toolbar {
-        background: #374151;
-        border-color: #4b5563;
-    }
-    body.dark-mode input[type="text"], 
-    body.dark-mode select {
-        background: #4b5563;
-        color: #fff;
-        border-color: #6b7280;
-    }
-    body.dark-mode input[type="text"]:focus, 
-    body.dark-mode select:focus {
-        border-color: #60a5fa;
-    }
-    body.dark-mode .nav-tab {
-        background: #4b5563;
-        color: #d1d5db;
-    }
-    body.dark-mode .nav-tab.active {
-        background: #2563eb;
-        color: #fff;
-    }
-    body.dark-mode .review-item {
-        background: #4b5563;
-        border-color: #6b7280;
-    }
-
-    /* General layout fixes */
-    .test-container {
-        display: flex;
-        height: calc(100vh - 120px);
-        overflow: hidden;
-    }
-    .passage-container, .questions-container {
-        width: 50%;
-        overflow-y: auto;
-        padding: 24px;
-    }
-    .passage-container {
-        border-right: 2px solid #e5e7eb;
-    }
+    body.dark-mode .submission-content,
+    body.dark-mode .reg-card { background: #374151; color: #e5e7eb; border-color: #4b5563; }
+    body.dark-mode .header { background: #1e40af; border-color: #4b5563; }
+    body.dark-mode input[type="text"], body.dark-mode select { background: #4b5563; color: #fff; border-color: #6b7280; }
     
-    /* Highlight styles */
+    .test-container { display: flex; height: calc(100vh - 120px); overflow: hidden; }
+    .passage-container, .questions-container { width: 50%; overflow-y: auto; padding: 24px; }
+    .passage-container { border-right: 2px solid #e5e7eb; }
+    
     .highlight-yellow { background-color: #fef08a; color: #000; }
     .highlight-green { background-color: #bbf7d0; color: #000; }
     .highlight-blue { background-color: #bfdbfe; color: #000; }
     .highlight-pink { background-color: #fbcfe8; color: #000; }
-    
-    body.dark-mode .highlight-yellow { background-color: #ca8a04; color: #fff; }
-    body.dark-mode .highlight-green { background-color: #16a34a; color: #fff; }
-    body.dark-mode .highlight-blue { background-color: #2563eb; color: #fff; }
-    body.dark-mode .highlight-pink { background-color: #db2777; color: #fff; }
-
-    .performance-rating {
-        font-weight: bold;
-        padding: 4px 8px;
-        border-radius: 4px;
-        display: inline-block;
-        margin-top: 8px;
-    }
-    .performance-rating.expert { background: #bbf7d0; color: #166534; }
-    .performance-rating.good { background: #dbeafe; color: #1e40af; }
-    .performance-rating.fair { background: #fef9c3; color: #854d0e; }
-    .performance-rating.poor { background: #fee2e2; color: #991b1b; }
-
-    body.dark-mode .performance-rating.expert { background: #166534; color: #bbf7d0; }
-    body.dark-mode .performance-rating.good { background: #1e40af; color: #dbeafe; }
-    body.dark-mode .performance-rating.fair { background: #854d0e; color: #fef9c3; }
-    body.dark-mode .performance-rating.poor { background: #991b1b; color: #fee2e2; }
 </style>
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col h-screen">
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex flex-col h-screen select-none">
 
-<header class="header bg-blue-700 text-white px-6 py-3 flex justify-between items-center shadow-md z-10 border-b border-blue-800">
-    <div class="flex items-center space-x-4">
-        <h1 class="text-xl font-bold tracking-tight"><i class="fas fa-graduation-cap mr-2"></i>IELTS Reading Simulation</h1>
-        <div class="flex bg-blue-800 rounded-lg p-0.5 border border-blue-600">
-            <button onclick="switchPart(1)" id="tab-p1" class="nav-tab px-3 py-1 text-sm font-medium rounded-md active bg-blue-600 text-white shadow-sm transition">Passage 1</button>
-            <button onclick="switchPart(2)" id="tab-p2" class="nav-tab px-3 py-1 text-sm font-medium rounded-md text-blue-200 hover:text-white transition ml-1">Passage 2</button>
-            <button onclick="switchPart(3)" id="tab-p3" class="nav-tab px-3 py-1 text-sm font-medium rounded-md text-blue-200 hover:text-white transition ml-1">Passage 3</button>
+<!-- REGISTRATION SCREEN -->
+<div id="reg-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center z-50 p-4">
+    <div class="reg-card bg-white p-8 rounded-2xl max-w-md w-full shadow-2xl space-y-6">
+        <div class="text-center space-y-2">
+            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto text-2xl"><i class="fas fa-user-shield"></i></div>
+            <h2 class="text-2xl font-black text-gray-900">Secure Exam Mode</h2>
+            <p class="text-sm text-gray-500">Ism-familiyangizni kiriting. Test davomida ekrandan chiqish butunlay taqiqlanadi.</p>
         </div>
-    </div>
-    <div class="flex items-center space-x-6">
-        <div class="header__timer border-2 border-blue-300 rounded-full px-4 py-1.5 font-mono text-lg font-bold bg-blue-800 text-blue-100 shadow-inner flex items-center space-x-2">
-            <i class="far fa-clock text-sm"></i>
-            <span id="timer">60:00</span>
-        </div>
-        <button onclick="toggleDarkMode()" class="text-blue-100 hover:text-white p-2 rounded-full hover:bg-blue-600 transition" title="Toggle Dark Mode">
-            <i class="fas fa-moon text-lg" id="darkModeIcon"></i>
-        </button>
-        <button onclick="toggleReviewPanel()" class="bg-blue-600 hover:bg-blue-500 border border-blue-500 px-4 py-1.5 text-sm font-semibold rounded-lg shadow transition flex items-center space-x-1">
-            <i class="fas fa-list-ol"></i>
-            <span>Review (<span id="attempted-count-nav">0</span>/40)</span>
-        </button>
-    </div>
-</header>
-
-<main class="test-container flex-1">
-    
-    <div class="passage-container bg-white border-r border-gray-200 select-text" id="passage-viewport">
-        
-        <article id="passage-1" class="passage-content space-y-6">
-            <header class="border-b border-gray-100 pb-4">
-                <span class="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">Reading Passage 1</span>
-                <h2 class="text-2xl font-black text-gray-900 mt-2">Chocolate for the Masses</h2>
-                <p class="text-sm text-gray-500 italic mt-1">The commercial evolution of a global confection.</p>
-            </header>
-            <div class="space-y-4 text-base leading-relaxed text-gray-700">
-                <p><strong>A</strong> For thousands of years, chocolate was consumed not as a solid sweet but as a bitter, frothy liquid. The ancient Maya and Aztecs revered the cacao bean, brewing it with chili peppers, vanilla, and water to create a drink reserved for nobility, religious rituals, and medicinal purposes. Wealthy Aztecs even used cacao beans as currency, demonstrating its immense cultural and material value. When Spanish conquistadors brought cacao back to Europe in the 16th century, sugar and cinnamon were introduced to temper the natural bitterness, converting it into an exclusive luxury beverage for the European aristocracy.</p>
-                <p><strong>B</strong> The transformation of chocolate from an elite beverage to a mass-produced solid confection was triggered by industrial innovations in the 19th century. The watershed moment arrived in 1828, when Dutch chemist and chocolate maker Coenraad van Houten patented a mechanical hydraulic press. Van Houten’s apparatus successfully extracted a significant portion of the naturally occurring fat—cacao butter—from the roasted beans, leaving behind a dry cake that could be pulverized into a fine material known as "cocoa powder." Crucially, Van Houten developed a chemical treatment process called "Dutching," treating the powder with alkaline salts to reduce its sharp acidity and improve solubility in water or milk.</p>
-                <p><strong>C</strong> Van Houten’s technical breakthrough paved the way for others to experiment with solid chocolate formats. In 1847, the English manufacturing firm J.S. Fry & Sons achieved a monumental milestone by combining cocoa powder, sugar, and melted cacao butter back together in precise ratios. This formulation yielded a malleable paste that could be poured into molds, resulting in the world’s first commercially viable solid eating chocolate bar. Although initial iterations were coarse and somewhat brittle, the fundamental architecture of the modern candy bar had been established.</p>
-                <p><strong>D</strong> Across the English Channel, the Cadbury brothers, John and George, expanded upon these techniques. Having built a successful beverage business, they turned their attention to eating chocolate, obtaining a royal warrant from Queen Victoria. Cadbury capitalized on industrial scaling, engineering cleaner, smoother formulations. In 1905, Cadbury introduced Dairy Milk, a pioneering chocolate bar incorporating high volumes of liquid milk instead of the standard milk powder components used by continental competitors. This strategic formulation created an exceptionally creamy texture that dominated the British market and defined the flavor profile of milk chocolate for generations of consumers.</p>
-                <p><strong>E</strong> Meanwhile, in the United States, Milton Hershey revolutionized the industry by applying mass-production principles borrowed from the automotive and meatpacking sectors. Operating in rural Pennsylvania, Hershey recognized that a successful mass-market product demanded absolute uniformity and unprecedented affordability. He developed his own proprietary process for fresh milk condensation, allowing for cheap, continuous production. In 1900, the first Hershey’s Milk Chocolate Bar was produced, followed in 1907 by the iconic Hershey's Kisses. Hershey constructed an entire company town around his facility, ensuring a dedicated workforce and a streamlined logistics network that integrated raw dairy supply lines with processing plants.</p>
-                <p><strong>F</strong> Today, the global chocolate sector is a multi-billion-dollar enterprise characterized by a distinct division between mass-market commodities and the rising artisan, "bean-to-bar" craft movement. Modern consumers increasingly demand transparency regarding supply chains, leading to a focus on fair trade practices and sustainable cacao cultivation in West Africa and Latin America. From its origin as a sacred Mesoamerican substance to an industrialized global staple, the trajectory of chocolate reflects broader shifts in technology, globalization, and consumer culture.</p>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold uppercase text-gray-400 mb-1">To'liq ism va familiya</label>
+                <input type="text" id="reg-name" placeholder="E.g., Toshmatov Eshmat" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
-        </article>
-
-        <article id="passage-2" class="passage-content space-y-6 hidden">
-            <header class="border-b border-gray-100 pb-4">
-                <span class="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">Reading Passage 2</span>
-                <h2 class="text-2xl font-black text-gray-900 mt-2">A Study of Western Celebrity</h2>
-                <p class="text-sm text-gray-500 italic mt-1">An exploration into the historical mechanics of public fame.</p>
-            </header>
-            <div class="space-y-4 text-base leading-relaxed text-gray-700">
-                <p><strong>A</strong> The contemporary phenomenon of celebrity is often dismissed as a modern pathology born of social media and reality television. However, sociological analysis reveals that the structural foundations of public fame possess a deep historical lineage in Western civilization. Historically, renown was tethered strictly to institutional achievements: military conquest, political statecraft, or ecclesiastical devotion. In these classical and medieval frameworks, a person was not celebrated for their unique internal personality, but rather for embodying an external, institutional role. Fame was an objective byproduct of systemic duty, not an individual asset to be cultivated or monetized.</p>
-                <p><strong>B</strong> A fundamental shift occurred during the European Enlightenment and the subsequent Industrial Revolution. The expansion of print media, urban migration, and the decline of traditional monarchical authority allowed a new breed of public figure to emerge. Figures like Lord Byron or Voltaire were celebrated not merely for their formal outputs, but for their eccentric personas, personal lives, and distinct stylistic choices. For the first time, the public became invested in the private interiority of the individual. This era marked the birth of the "romantic hero," whose fame was generated through a symbiotic relationship with an increasingly literate middle-class public eager for secular icons.</p>
-                <p><strong>C</strong> The industrialization of the 20th century accelerated this process through the introduction of visual mass media: photography, cinema, and television. Sociologist Leo Lowenthal, in his seminal 1944 study of popular biographies, tracked a structural transition from "idols of production"—individuals celebrated for structural achievements in engineering, statecraft, or industry—to "idols of consumption." These new figures were drawn primarily from the spheres of entertainment, athletics, and leisure. Lowenthal argued that this shift reflected a changing economic landscape where citizens sought distraction, relatability, and lifestyle inspiration rather than civic instruction from their cultural icons.</p>
-                <p><strong>D</strong> Critical theorist Daniel Boorstin advanced this critique in his prophetic 1961 text <em>The Image: A Guide to Pseudo-events in America</em>. Boorstin famously formulated the definition of a celebrity as "a person who is known for his well-knownness." He argued that the rise of graphic communication had decoupled fame from any baseline of merit or tangible achievement. Instead, media apparatuses manufactured "pseudo-events"—scripted press conferences, staged photo opportunities, and manufactured controversies—designed solely to generate public attention. In Boorstin's view, the celebrity is a synthetic product of media repetition, possessing no intrinsic substance beyond their administrative visibility.</p>
-                <p><strong>E</strong> In the late 20th and early 21st centuries, French sociologist Pierre Bourdieu's concept of "capital" offers a potent framework for analyzing the mechanics of contemporary fame. Celebrity status can be understood as a highly concentrated form of "symbolic capital"—prestige, recognition, and social honor—that can be systematically converted into economic capital via corporate endorsements, media contracts, and brand intellectual property. This economic convertibility has transformed celebrity into a structured market sector, managed by specialized networks of publicists, talent agents, and brand strategists who calculate and maintain the exchange value of public visibility.</p>
-                <p><strong>F</strong> Today, the democratization of media via digital platforms has fragmented the traditional mass-media gatekeeping structures, giving rise to micro-celebrities and digital influencers. While these figures operate within smaller niche markets, the underlying systemic dynamics remain remarkably consistent with historical models. The modern influencer relies on the illusion of radical authenticity and unmediated accessibility to build a loyal community, which is then monetized through commercial algorithms. Far from a contemporary rupture, modern digital visibility represents the logical culmination of a historical trajectory that prioritizes public visibility over institutional utility.</p>
-            </div>
-        </article>
-
-        <article id="passage-3" class="passage-content space-y-6 hidden">
-            <header class="border-b border-gray-100 pb-4">
-                <span class="text-xs font-bold text-blue-600 uppercase tracking-widest bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">Reading Passage 3</span>
-                <h2 class="text-2xl font-black text-gray-900 mt-2">Research into the Effects of Different Teaching Styles</h2>
-                <p class="text-sm text-gray-500 italic mt-1">An empirical review of pedagogical methods and academic outcomes.</p>
-            </header>
-            <div class="space-y-4 text-base leading-relaxed text-gray-700">
-                <p>The quest to optimize academic achievement has led to a protracted debate within educational psychology regarding the efficacy of contrasting pedagogical frameworks. For decades, educational institutions relied almost exclusively on teacher-centered paradigms, often characterized as "direct instruction" or "traditional lecturing." In this model, the educator serves as the primary epistemological authority, systematically delivering structured content to a largely receptive student body. Assessment in these environments typically prioritizes rote memorization, standardized recall, and individual compliance with rigid curricular benchmarks.</p>
-                <p>Advocates of direct instruction argue that its structured nature provides clear cognitive scaffolding, minimizing extraneous cognitive load and maximizing instructional efficiency. This method is particularly effective when conveying complex, highly factual domains such as mathematics or foundational grammar, where misinterpretations must be proactively averted. Empirical longitudinal data suggests that structured lecturing frameworks yield strong short-term retention scores and provide an essential sense of academic security for lower-performing demographics who require explicit systemic directives to navigate complex intellectual materials.</p>
-                <p>Conversely, the late 20th century witnessed a significant paradigm shift toward student-centered frameworks, heavily informed by constructivist cognitive theories. Spearheaded by educational theorists who posited that knowledge is actively constructed by the learner rather than passively absorbed, these methods emphasize collaborative inquiry, project-based learning, and autonomous problem-solving. In a constructivist classroom, the educator’s role shifts from an absolute authority figure to a facilitator or guide—collaborating with students to foster metacognitive awareness and critical thinking skills.</p>
-                <p>Proponents of constructivist methodologies assert that by granting students agency over their learning trajectories, internal motivation is significantly amplified. When students engage with authentic, open-ended scenarios, they develop deep conceptual frameworks rather than fleeting superficial recall. Furthermore, collaborative group structures mirror contemporary workplace dynamics, cultivating vital soft skills such as negotiation, peer communication, and cognitive flexibility. However, critics point out that poorly structured constructivist environments can lead to cognitive overload, instructional drift, and an exacerbation of achievement gaps if vulnerable students lack the foundational knowledge required to direct their own investigations.</p>
-                <p>To reconcile these divergent perspectives, recent large-scale meta-analyses have sought to evaluate mixed pedagogical approaches. One notable study conducted by the Global Institute for Pedagogical Evaluation analyzed academic outcomes across 400 secondary schools over a five-year period. Researchers utilized stratified sampling to isolate variables including socioeconomic status, baseline aptitude, and technological resource allocation. The study monitored student performance across three distinct cohorts: Cohort A received exclusive direct instruction; Cohort B engaged in unguided constructivist learning; and Cohort C experienced an integrated model blending direct instructional lectures with structured collaborative workshops.</p>
-                <p>The empirical findings revealed a nuanced landscape. Cohort C demonstrated statistically significant advantages in both long-term knowledge retention and high-order analytical application tests. While Cohort A achieved high scores on standardized factual recall metrics, their performance precipitously declined when presented with novel, unstructured tasks requiring divergent thinking. Cohort B exhibited highly erratic results; students from affluent backgrounds with extensive pre-existing academic resources thrived, whereas those from marginalized demographics demonstrated marked drops in basic literacy and numeracy benchmarks. The researchers concluded that the most effective pedagogical architecture is an integrated framework where explicit instructional clarity provides the necessary foundation for subsequent autonomous, student-centered exploration.</p>
-            </div>
-        </article>
-    </div>
-
-    <div class="questions-container bg-gray-50">
-        
-        <div id="questions-1" class="question-set space-y-8">
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 1–6</h3>
-                <p class="text-sm text-gray-600 italic">Reading Passage 1 has six paragraphs, <strong>A–F</strong>. Which paragraph contains the following information?</p>
-                <div class="space-y-4 mt-4">
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">1</span>
-                        <label class="flex-1 text-sm font-medium">A description of the first commercially viable solid chocolate product.</label>
-                        <select id="q1" onchange="markAttempted(1)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">2</span>
-                        <label class="flex-1 text-sm font-medium">An explanation of how a specific manufacturer prioritized uniformity and affordability.</label>
-                        <select id="q2" onchange="markAttempted(2)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">3</span>
-                        <label class="flex-1 text-sm font-medium">Reference to the historical use of cacao beans as a form of currency.</label>
-                        <select id="q3" onchange="markAttempted(3)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">4</span>
-                        <label class="flex-1 text-sm font-medium">Details regarding a chemical process used to reduce the acidity of cocoa powder.</label>
-                        <select id="q4" onchange="markAttempted(4)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">5</span>
-                        <label class="flex-1 text-sm font-medium">A discussion of modern consumer demands for transparency and sustainability.</label>
-                        <select id="q5" onchange="markAttempted(5)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">6</span>
-                        <label class="flex-1 text-sm font-medium">An explanation of how a liquid milk formulation altered a market segment.</label>
-                        <select id="q6" onchange="markAttempted(6)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 7–10</h3>
-                <p class="text-sm text-gray-600 italic">Look at the following achievements and the list of manufacturers below. Match each achievement with the correct manufacturer, <strong>A–D</strong>.</p>
-                <div class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs space-y-1 text-blue-900">
-                    <p><strong>A</strong> Coenraad van Houten</p>
-                    <p><strong>B</strong> J.S. Fry & Sons</p>
-                    <p><strong>C</strong> The Cadbury brothers</p>
-                    <p><strong>D</strong> Milton Hershey</p>
-                </div>
-                <div class="space-y-4 mt-4">
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">7</span>
-                        <label class="flex-1 text-sm font-medium">Constructed an entire company town to organize workforce and supply lines.</label>
-                        <select id="q7" onchange="markAttempted(7)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">8</span>
-                        <label class="flex-1 text-sm font-medium">Patented a mechanical hydraulic press to extract fat from roasted cacao beans.</label>
-                        <select id="q8" onchange="markAttempted(8)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">9</span>
-                        <label class="flex-1 text-sm font-medium">Combined cocoa powder, sugar, and cacao butter to create a malleable eating paste.</label>
-                        <select id="q9" onchange="markAttempted(9)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">10</span>
-                        <label class="flex-1 text-sm font-medium">Obtained a royal warrant from Queen Victoria and introduced Dairy Milk.</label>
-                        <select id="q10" onchange="markAttempted(10)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 11–13</h3>
-                <p class="text-sm text-gray-600 italic">Complete the summary below. Choose <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
-                <div class="mt-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 leading-loose text-sm">
-                    Before its industrialization, chocolate was consumed by the ancient Maya and Aztecs as a 
-                    <span class="inline-block mx-1"><input type="text" id="q11" oninput="markAttempted(11)" class="p-1 border border-gray-300 rounded w-32 font-bold text-center text-sm focus:ring-1 focus:ring-blue-500"> (11)</span> liquid. 
-                    Cacao held massive value, serving even as 
-                    <span class="inline-block mx-1"><input type="text" id="q12" oninput="markAttempted(12)" class="p-1 border border-gray-300 rounded w-32 font-bold text-center text-sm focus:ring-1 focus:ring-blue-500"> (12)</span> within the Aztec empire. 
-                    When Spanish conquistadors integrated it into European culture, ingredients like 
-                    <span class="inline-block mx-1"><input type="text" id="q13" oninput="markAttempted(13)" class="p-1 border border-gray-300 rounded w-32 font-bold text-center text-sm focus:ring-1 focus:ring-blue-500"> (13)</span> and cinnamon were added to make it more palatable for the aristocracy.
-                </div>
-            </section>
+            <button onclick="startExam()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow transition text-sm">Enter Secure Mode & Start</button>
         </div>
-
-        <div id="questions-2" class="question-set space-y-8 hidden">
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 14–19</h3>
-                <p class="text-sm text-gray-600 italic">Do the following statements agree with the information given in Reading Passage 2?</p>
-                <div class="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-yellow-800 flex justify-between">
-                    <span><strong>TRUE</strong> - if the statement agrees with the information</span>
-                    <span><strong>FALSE</strong> - if it contradicts the information</span>
-                    <span><strong>NOT GIVEN</strong> - if there is no information</span>
-                </div>
-                <div class="space-y-4 mt-4">
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">14</span>
-                        <label class="flex-1 text-sm font-medium">In classical frameworks, individuals were celebrated primarily for their unique internal personalities.</label>
-                        <select id="q14" onchange="markAttempted(14)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">15</span>
-                        <label class="flex-1 text-sm font-medium">Lord Byron and Voltaire deliberately avoided public interest in their personal affairs.</label>
-                        <select id="q15" onchange="markAttempted(15)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">16</span>
-                        <label class="flex-1 text-sm font-medium">Leo Lowenthal noted a structural transition in media biographies toward "idols of consumption."</label>
-                        <select id="q16" onchange="markAttempted(16)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">17</span>
-                        <label class="flex-1 text-sm font-medium">Daniel Boorstin argued that celebrities are synthetic products generated primarily by media repetition.</label>
-                        <select id="q17" onchange="markAttempted(17)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">18</span>
-                        <label class="flex-1 text-sm font-medium">Pierre Bourdieu claimed that symbolic capital can never be systematically converted into economic capital.</label>
-                        <select id="q18" onchange="markAttempted(18)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">19</span>
-                        <label class="flex-1 text-sm font-medium">Digital influencers operate under systemic dynamics that are entirely unique from any historical model.</label>
-                        <select id="q19" onchange="markAttempted(19)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 20–23</h3>
-                <p class="text-sm text-gray-600 italic">Look at the following definitions and the list of theorists below. Match each definition with the correct theorist, <strong>A–C</strong>.</p>
-                <div class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs space-y-1 text-blue-900">
-                    <p><strong>A</strong> Leo Lowenthal</p>
-                    <p><strong>B</strong> Daniel Boorstin</p>
-                    <p><strong>C</strong> Pierre Bourdieu</p>
-                </div>
-                <div class="space-y-4 mt-4">
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">20</span>
-                        <label class="flex-1 text-sm font-medium">Defined a celebrity simply as "a person who is known for his well-knownness."</label>
-                        <select id="q20" onchange="markAttempted(20)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">21</span>
-                        <label class="flex-1 text-sm font-medium">Analyzed celebrity status as a highly concentrated manifestation of "symbolic capital."</label>
-                        <select id="q21" onchange="markAttempted(21)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">22</span>
-                        <label class="flex-1 text-sm font-medium">Tracked a cultural transition from "idols of production" to "idols of consumption."</label>
-                        <select id="q22" onchange="markAttempted(22)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">23</span>
-                        <label class="flex-1 text-sm font-medium">Described media-manufactured "pseudo-events" designed solely to capture public attention.</label>
-                        <select id="q23" onchange="markAttempted(23)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 24–26</h3>
-                <p class="text-sm text-gray-600 italic">Complete the sentences below. Choose <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
-                <div class="space-y-3 mt-4 text-sm">
-                    <div class="question flex items-center space-x-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400">24</span>
-                        <p class="flex-1">In classical times, public renown was strictly connected to <input type="text" id="q24" oninput="markAttempted(24)" class="p-1 mx-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500"> achievements.</p>
-                    </div>
-                    <div class="question flex items-center space-x-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400">25</span>
-                        <p class="flex-1">The Enlightenment witnessed the birth of the <input type="text" id="q25" oninput="markAttempted(25)" class="p-1 mx-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500">, whose private lives captivated the middle-class public.</p>
-                    </div>
-                    <div class="question flex items-center space-x-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400">26</span>
-                        <p class="flex-1">Modern micro-celebrities and digital influencers rely on the strategic illusion of radical <input type="text" id="q26" oninput="markAttempted(26)" class="p-1 mx-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500"> to engage followers.</p>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <div id="questions-3" class="question-set space-y-8 hidden">
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 27–31</h3>
-                <p class="text-sm text-gray-600 italic">Do the following statements agree with the claims of the researcher in Reading Passage 3?</p>
-                <div class="mt-2 p-2 bg-yellow-50 border border-yellow-100 rounded text-xs text-yellow-800 flex justify-between">
-                    <span><strong>YES</strong> - if the statement agrees with the claims</span>
-                    <span><strong>NO</strong> - if it contradicts the claims</span>
-                    <span><strong>NOT GIVEN</strong> - if there is no information</span>
-                </div>
-                <div class="space-y-4 mt-4">
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">27</span>
-                        <label class="flex-1 text-sm font-medium">Direct instruction works best when communicating highly complex, empirical domains where factual clarity is essential.</label>
-                        <select id="q27" onchange="markAttempted(27)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">28</span>
-                        <label class="flex-1 text-sm font-medium">Constructivist techniques imply that knowledge should be passively absorbed by students via structured authorities.</label>
-                        <select id="q28" onchange="markAttempted(28)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">29</span>
-                        <label class="flex-1 text-sm font-medium">Collaborative group environments help develop modern soft skills such as negotiation and cognitive flexibility.</label>
-                        <select id="q29" onchange="markAttempted(29)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">30</span>
-                        <label class="flex-1 text-sm font-medium">Poorly structured constructivist settings minimize achievement gaps for students from lower socioeconomic backgrounds.</label>
-                        <select id="q30" onchange="markAttempted(30)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">31</span>
-                        <label class="flex-1 text-sm font-medium">The study by the Global Institute for Pedagogical Evaluation isolated variables such as socioeconomic status.</label>
-                        <select id="q31" onchange="markAttempted(31)" class="w-28 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option><option value="NOT GIVEN">NOT GIVEN</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 32–36</h3>
-                <p class="text-sm text-gray-600 italic">Match each characteristic with the correct cohort from the study, <strong>A–C</strong>.</p>
-                <div class="mt-3 p-3 bg-blue-50 border border-blue-100 rounded-lg text-xs space-y-1 text-blue-900">
-                    <p><strong>A</strong> Cohort A (Exclusive direct instruction)</p>
-                    <p><strong>B</strong> Cohort B (Unguided constructivist learning)</p>
-                    <p><strong>C</strong> Cohort C (Integrated framework model)</p>
-                </div>
-                <div class="space-y-4 mt-4">
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">32</span>
-                        <label class="flex-1 text-sm font-medium">Demonstrated significant advantages in both long-term knowledge retention and high-order analytical apply tests.</label>
-                        <select id="q32" onchange="markAttempted(32)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">33</span>
-                        <label class="flex-1 text-sm font-medium">Achieved strong results on factual recall metrics but performance plummeted when presented with novel tasks.</label>
-                        <select id="q33" onchange="markAttempted(33)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">34</span>
-                        <label class="flex-1 text-sm font-medium">Exhibited highly erratic results, with marginalized student brackets demonstrating drops in basic literacy.</label>
-                        <select id="q34" onchange="markAttempted(34)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">35</span>
-                        <label class="flex-1 text-sm font-medium">Students from wealthy environments with extensive pre-existing resources thrived despite lacking direct guidance.</label>
-                        <select id="q35" onchange="markAttempted(35)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                    <div class="question flex items-center space-x-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
-                        <span class="font-mono font-bold text-gray-400 bg-white border px-2 py-0.5 rounded">36</span>
-                        <label class="flex-1 text-sm font-medium">Proved that formal explicit clarity provides an essential foundation for subsequent autonomous discovery.</label>
-                        <select id="q36" onchange="markAttempted(36)" class="w-24 p-1.5 border border-gray-300 rounded-md shadow-sm text-sm focus:ring-2 focus:ring-blue-500">
-                            <option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <section class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                <h3 class="font-bold text-gray-900 border-b border-gray-100 pb-2 mb-3">Questions 37–40</h3>
-                <p class="text-sm text-gray-600 italic">Complete the summary below. Choose <strong>NO MORE THAN TWO WORDS</strong> from the passage for each answer.</p>
-                <div class="mt-4 p-4 bg-gray-50 rounded-xl border border-dashed border-gray-300 leading-loose text-sm">
-                    Traditional teacher-centered models are frequently described as 
-                    <span class="inline-block mx-1"><input type="text" id="q37" oninput="markAttempted(37)" class="p-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500"> (37)</span>, 
-                    where educators serve as the main authority. However, constructivist models argue that knowledge must be 
-                    <span class="inline-block mx-1"><input type="text" id="q38" oninput="markAttempted(38)" class="p-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500"> (38)</span> 
-                    actively by learners. Proponents argue that constructivist systems amplify a student's 
-                    <span class="inline-block mx-1"><input type="text" id="q39" oninput="markAttempted(39)" class="p-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500"> (39)</span>, 
-                    allowing them to construct meaningful deep conceptual frameworks rather than short-lived, 
-                    <span class="inline-block mx-1"><input type="text" id="q40" oninput="markAttempted(40)" class="p-1 border border-gray-300 rounded w-40 text-center font-bold text-sm focus:ring-1 focus:ring-blue-500"> (40)</span> recall.
-                </div>
-            </section>
-        </div>
-    </div>
-</main>
-
-<div id="highlight-toolbar" class="highlight-toolbar hidden absolute bg-white shadow-xl rounded-xl border border-gray-200 p-2 flex space-x-2 z-50 items-center">
-    <button onclick="applyHighlight('highlight-yellow')" class="w-7 h-7 rounded-full bg-yellow-200 hover:scale-110 transition border border-yellow-300"></button>
-    <button onclick="applyHighlight('highlight-green')" class="w-7 h-7 rounded-full bg-green-200 hover:scale-110 transition border border-green-300"></button>
-    <button onclick="applyHighlight('highlight-blue')" class="w-7 h-7 rounded-full bg-blue-200 hover:scale-110 transition border border-blue-300"></button>
-    <button onclick="applyHighlight('highlight-pink')" class="w-7 h-7 rounded-full bg-pink-200 hover:scale-110 transition border border-pink-300"></button>
-    <div class="w-px h-5 bg-gray-200 mx-1"></div>
-    <button onclick="clearHighlight()" class="text-xs font-bold text-gray-500 hover:text-red-500 px-1.5 py-1 rounded hover:bg-gray-100 transition"><i class="fas fa-eraser mr-1"></i>Clear</button>
-</div>
-
-<footer class="footer bg-white border-t border-gray-200 px-6 py-4 flex justify-between items-center z-10 shadow-md">
-    <div class="flex items-center space-x-6 text-sm font-medium text-gray-500">
-        <div><i class="fas fa-check-circle text-green-500 mr-1.5"></i>Attempted: <span id="footer-attempted" class="text-gray-900 font-bold">0</span>/40</div>
-        <div><i class="fas fa-clock text-blue-500 mr-1.5"></i>Remaining: <span id="footer-timer-alt" class="text-gray-900 font-bold">60:00</span></div>
-    </div>
-    <button id="deliver-button" class="bg-emerald-600 hover:bg-emerald-500 border border-emerald-600 text-white font-bold px-8 py-2.5 rounded-xl shadow transition flex items-center space-x-2">
-        <i class="fas fa-paper-plane text-xs"></i>
-        <span>Submit Test</span>
-    </button>
-</footer>
-
-<div id="reviewPanel" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-40 transform translate-x-full transition-transform duration-300 border-l border-gray-200 flex flex-col hidden">
-    <div class="p-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-        <h4 class="font-bold text-gray-900 flex items-center"><i class="fas fa-list-ol mr-2 text-blue-600"></i>Question Navigator</h4>
-        <button onclick="toggleReviewPanel()" class="text-gray-400 hover:text-gray-600 p-1"><i class="fas fa-times text-lg"></i></button>
-    </div>
-    <div class="p-4 grid grid-cols-5 gap-2 overflow-y-auto flex-1 bg-gray-50" id="navigator-grid">
     </div>
 </div>
 
-<div id="submissionModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden">
-    <div class="submission-content bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-100 transform scale-95 transition-transform">
-        <div class="text-center">
-            <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-200 shadow-inner">
-                <i class="fas fa-clipboard-check text-2xl"></i>
-            </div>
-            <h3 class="text-xl font-black text-gray-900">Test Submission Complete</h3>
-            <p class="text-sm text-gray-500 mt-1">Your answers have been securely analyzed.</p>
-        </div>
-        <div class="grid grid-cols-2 gap-3 my-6">
-            <div class="bg-gray-50 border p-3 rounded-xl text-center">
-                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Correct</span>
-                <span id="modalCorrect" class="text-xl font-black text-green-600">0</span>
-            </div>
-            <div class="bg-gray-50 border p-3 rounded-xl text-center">
-                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Wrong</span>
-                <span id="modalWrong" class="text-xl font-black text-red-500">0</span>
-            </div>
-            <div class="bg-gray-50 border p-3 rounded-xl text-center">
-                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">Unattempted</span>
-                <span id="modalUnattempted" class="text-xl font-black text-gray-500">0</span>
-            </div>
-            <div class="bg-gray-50 border p-3 rounded-xl text-center">
-                <span class="block text-xs font-bold text-gray-400 uppercase tracking-wider">IELTS Band Score</span>
-                <span id="modalScore" class="text-xl font-black text-blue-600">0</span>
+<!-- MAIN APPLICATION INTERFACE -->
+<div id="main-app" class="flex flex-col h-screen hidden">
+    <!-- HEADER -->
+    <header class="header bg-blue-700 text-white px-6 py-3 flex justify-between items-center shadow-md z-10">
+        <div class="flex items-center space-x-4">
+            <h1 class="text-xl font-bold tracking-tight"><i class="fas fa-lock mr-2"></i>IELTS Proctored Exam</h1>
+            <div class="flex bg-blue-800 rounded-lg p-0.5 border border-blue-600">
+                <button onclick="switchPart(1)" id="tab-p1" class="px-3 py-1 text-sm font-medium rounded-md bg-blue-600 text-white shadow-sm">Passage 1</button>
+                <button onclick="switchPart(2)" id="tab-p2" class="px-3 py-1 text-sm font-medium rounded-md text-blue-200 ml-1">Passage 2</button>
+                <button onclick="switchPart(3)" id="tab-p3" class="px-3 py-1 text-sm font-medium rounded-md text-blue-200 ml-1">Passage 3</button>
             </div>
         </div>
-        <div class="border-t pt-4 text-center">
-            <span class="text-xs font-bold text-gray-400 uppercase tracking-wider block">Performance Framework</span>
-            <div id="performanceRating" class="performance-rating">Evaluating...</div>
+        <div class="flex items-center space-x-6">
+            <div class="border-2 border-blue-300 rounded-full px-4 py-1.5 font-mono text-lg font-bold bg-blue-800 text-blue-100 shadow-inner">
+                <i class="far fa-clock text-sm mr-2"></i><span id="timer">60:00</span>
+            </div>
+            <button onclick="toggleDarkMode()" class="text-blue-100 hover:text-white"><i class="fas fa-moon text-lg"></i></button>
         </div>
-        <button id="closeSubmission" class="mt-6 w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-xl shadow transition text-sm">Close Dashboard</button>
+    </header>
+
+    <!-- TEST CONTAINER -->
+    <main class="test-container flex-1">
+        <div class="passage-container bg-white select-text" id="passage-viewport">
+            <article id="passage-1" class="space-y-4">
+                <h2 class="text-xl font-black">Passage 1: Chocolate for the Masses</h2>
+                <p><strong>A</strong> For thousands of years, chocolate was consumed not as a solid sweet but as a bitter, frothy liquid. The ancient Maya and Aztecs revered the cacao bean, brewing it with chili peppers, vanilla, and water...</p>
+                <p><strong>B</strong> The transformation of chocolate from an elite beverage to a mass-produced solid confection was triggered by industrial innovations in the 19th century. The watershed moment arrived in 1828, when Dutch chemist Coenraad van Houten patented a mechanical hydraulic press...</p>
+            </article>
+            <article id="passage-2" class="space-y-4 hidden">
+                <h2 class="text-xl font-black">Passage 2: A Study of Western Celebrity</h2>
+                <p><strong>A</strong> The contemporary phenomenon of celebrity is often dismissed as a modern pathology born of social media. However, sociological analysis reveals that fame possesses a deep historical lineage in Western civilization...</p>
+            </article>
+            <article id="passage-3" class="space-y-4 hidden">
+                <h2 class="text-xl font-black">Passage 3: Research into Teaching Styles</h2>
+                <p>The quest to optimize academic achievement has led to a protracted debate within educational psychology regarding the efficacy of contrasting pedagogical frameworks...</p>
+            </article>
+        </div>
+
+        <div class="questions-container bg-gray-50 space-y-6">
+            <div id="questions-1" class="space-y-4">
+                <h3 class="font-bold">Questions 1-3 (Passage 1)</h3>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
+                    <span>1. First commercially viable eating chocolate format.</span>
+                    <select id="q1" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
+                    <span>2. Prioritized uniformity and affordability.</span>
+                    <select id="q2" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+                </div>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
+                    <span>3. Historical use of cacao beans as currency.</span>
+                    <select id="q3" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+                </div>
+            </div>
+            
+            <div id="questions-2" class="space-y-4 hidden">
+                <h3 class="font-bold">Questions 14-15 (Passage 2)</h3>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
+                    <span>14. Classical frameworks celebrated unique personalities.</span>
+                    <select id="q14" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="TRUE">TRUE</option><option value="FALSE">FALSE</option></select>
+                </div>
+            </div>
+
+            <div id="questions-3" class="space-y-4 hidden">
+                <h3 class="font-bold">Questions 27-28 (Passage 3)</h3>
+                <div class="bg-white p-3 border rounded-xl flex items-center justify-between">
+                    <span>27. Direct instruction works best for empirical concepts.</span>
+                    <select id="q27" onchange="markAttempted()" class="border p-1 rounded"><option value="">Select</option><option value="YES">YES</option><option value="NO">NO</option></select>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer bg-white border-t px-6 py-4 flex justify-between items-center">
+        <span class="text-sm font-medium text-gray-500">Attempted: <span id="footer-attempted" class="font-bold text-gray-900">0</span>/40</span>
+        <button onclick="manualSubmit()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-8 py-2.5 rounded-xl shadow transition">Submit Test</button>
+    </footer>
+</div>
+
+<!-- SUBMISSION MODAL -->
+<div id="submissionModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="submission-content bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
+        <div id="modalIcon" class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl"><i class="fas fa-check"></i></div>
+        <h3 class="text-xl font-black" id="modalTitle">Evaluation Finished</h3>
+        <p class="text-sm text-gray-500" id="cheat-status-text">Test yakunlandi.</p>
+        
+        <div class="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-xl border">
+            <div><span class="block text-xs font-bold text-gray-400">CORRECT</span><span id="modalCorrect" class="text-lg font-black text-green-600">0</span></div>
+            <div><span class="block text-xs font-bold text-gray-400">BAND SCORE</span><span id="modalScore" class="text-lg font-black text-blue-600">1.0</span></div>
+        </div>
+        <button onclick="exitExamPlatform()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl">Close System</button>
     </div>
 </div>
 
 <script>
-const ANSWER_KEYS = {
-    1: 'C', 2: 'E', 3: 'A', 4: 'B', 5: 'F', 6: 'D',
-    7: 'D', 8: 'A', 9: 'B', 10: 'C',
-    11: ['bitter frothy', 'bitter, frothy'], 12: 'currency', 13: 'sugar',
-    14: 'FALSE', 15: 'FALSE', 16: 'TRUE', 17: 'TRUE', 18: 'FALSE', 19: 'FALSE',
-    20: 'B', 21: 'C', 22: 'A', 23: 'B',
-    24: 'institutional', 25: 'romantic hero', 26: 'authenticity',
-    27: 'YES', 28: 'NO', 29: 'YES', 30: 'NO', 31: 'YES',
-    32: 'C', 33: 'A', 34: 'B', 35: 'B', 36: 'C',
-    37: 'direct instruction', 38: 'constructed', 39: 'internal motivation', 40: 'superficial'
-};
+const ANSWER_KEYS = { 1: 'C', 2: 'E', 3: 'A', 14: 'FALSE', 27: 'YES' };
+let studentName = "", timeLeft = 3600, timerInterval = null, isSubmitted = false;
 
-let currentPart = 1;
-let timeLeft = 3600;
-let testSubmitted = false;
-let resultsShown = false;
-let score = 0;
-
-const timerInterval = setInterval(() => {
-    if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        autoSubmitTest();
-    } else {
-        timeLeft--;
-        updateTimerDisplay();
-    }
-}, 1000);
-
-function updateTimerDisplay() {
-    const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const seconds = (timeLeft % 60).toString().padStart(2, '0');
-    const format = `${minutes}:${seconds}`;
-    document.getElementById('timer').textContent = format;
-    document.getElementById('footer-timer-alt').textContent = format;
+function startExam() {
+    studentName = document.getElementById('reg-name').value.trim();
+    if(!studentName) { alert("Iltimos, ism va familiyangizni kiriting!"); return; }
+    
+    document.getElementById('reg-screen').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    
+    // Request Fullscreen for security
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) docEl.requestFullscreen();
+    else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+    
+    startTimer();
+    activateStrictAntiCheat();
 }
 
-function switchPart(partNum) {
-    currentPart = partNum;
-    for (let i = 1; i <= 3; i++) {
-        const passage = document.getElementById(`passage-${i}`);
-        const qSet = document.getElementById(`questions-${i}`);
-        const actualTab = document.getElementById(`tab-p${i}`);
-        if (i === partNum) {
-            passage.classList.remove('hidden');
-            qSet.classList.remove('hidden');
-            actualTab.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
-            actualTab.classList.remove('text-blue-200');
+function startTimer() {
+    timerInterval = setInterval(() => {
+        if(timeLeft <= 0) {
+            clearInterval(timerInterval);
+            executeFinalSubmission("Time Expired");
         } else {
-            passage.classList.add('hidden');
-            qSet.classList.add('hidden');
-            actualTab.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
-            actualTab.classList.add('text-blue-200');
+            timeLeft--;
+            const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const secs = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').textContent = `${mins}:${secs}`;
         }
-    }
-    document.getElementById('passage-viewport').scrollTop = 0;
+    }, 1000);
 }
 
-function getStudentAnswer(qId) {
-    const el = document.getElementById(`q${qId}`);
-    if (!el) return '';
-    return el.value.trim();
-}
-
-function checkAnswer(qId) {
-    const ans = getStudentAnswer(qId);
-    if (!ans) return 'unattempted';
-    const key = ANSWER_KEYS[qId];
-    if (Array.isArray(key)) {
-        return key.some(k => k.toLowerCase() === ans.toLowerCase()) ? 'correct' : 'wrong';
-    }
-    return key.toLowerCase() === ans.toLowerCase() ? 'correct' : 'wrong';
-}
-
-function markAttempted(qId) {
-    updateAttemptedCounts();
-    const el = document.getElementById(`q${qId}`);
-    if (el && el.type === 'text') {
-        if (el.value.trim() !== '') {
-            el.classList.add('bg-blue-50', 'border-blue-400');
-        } else {
-            el.classList.remove('bg-blue-50', 'border-blue-400');
+function activateStrictAntiCheat() {
+    // 1. Detect Tab Switched / App Minimization
+    document.addEventListener("visibilitychange", () => {
+        if (document.hidden && !isSubmitted) {
+            executeFinalSubmission("TERMINATED (Tab/App Switch Detected)");
         }
+    });
+
+    // 2. Detect Fullscreen Exit
+    document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement && !isSubmitted) {
+            executeFinalSubmission("TERMINATED (Exit Fullscreen Disqualification)");
+        }
+    });
+    document.addEventListener("webkitfullscreenchange", () => {
+        if (!document.webkitFullscreenElement && !isSubmitted) {
+            executeFinalSubmission("TERMINATED (Exit Fullscreen Disqualification)");
+        }
+    });
+}
+
+function switchPart(p) {
+    for(let i=1; i<=3; i++) {
+        document.getElementById(`passage-${i}`).classList.toggle('hidden', i!==p);
+        document.getElementById(`questions-${i}`).classList.toggle('hidden', i!==p);
     }
 }
 
-function updateAttemptedCounts() {
+function markAttempted() {
     let count = 0;
-    for (let i = 1; i <= 40; i++) {
-        if (getStudentAnswer(i) !== '') count++;
+    for(let i=1; i<=40; i++) {
+        let el = document.getElementById(`q${i}`);
+        if(el && el.value !== "") count++;
     }
-    document.getElementById('attempted-count-nav').textContent = count;
     document.getElementById('footer-attempted').textContent = count;
-    generateNavigatorGrid();
 }
 
-function toggleReviewPanel() {
-    const panel = document.getElementById('reviewPanel');
-    panel.classList.toggle('hidden');
-    panel.classList.toggle('translate-x-full');
-}
-
-function generateNavigatorGrid() {
-    const grid = document.getElementById('navigator-grid');
-    grid.innerHTML = '';
-    for (let i = 1; i <= 40; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        btn.className = "w-10 h-10 rounded-lg text-xs font-bold font-mono transition border flex items-center justify-center ";
-        const answerStatus = getStudentAnswer(i);
-        if (resultsShown) {
-            const evaluation = checkAnswer(i);
-            if (evaluation === 'correct') btn.className += "bg-green-500 text-white border-green-600";
-            else if (evaluation === 'wrong') btn.className += "bg-red-500 text-white border-red-600";
-            else btn.className += "bg-gray-300 text-gray-600 border-gray-400";
-        } else {
-            if (answerStatus !== '') btn.className += "bg-blue-600 text-white border-blue-700 shadow-sm";
-            else btn.className += "bg-white text-gray-700 border-gray-200 hover:bg-gray-100";
-        }
-        btn.onclick = () => {
-            if (i <= 13) switchPart(1);
-            else if (i <= 26) switchPart(2);
-            else switchPart(3);
-            toggleReviewPanel();
-            setTimeout(() => {
-                const el = document.getElementById(`q${i}`);
-                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }, 200);
-        };
-        grid.appendChild(btn);
+function manualSubmit() {
+    if(confirm("Testni yakunlashni tasdiqlaysizmi?")) {
+        executeFinalSubmission("Completed Normally");
     }
 }
 
-function disableAllInputs() {
-    for (let i = 1; i <= 40; i++) {
-        const el = document.getElementById(`q${i}`);
-        if (el) el.disabled = true;
+function executeFinalSubmission(statusReason) {
+    if(isSubmitted) return;
+    isSubmitted = true;
+    clearInterval(timerInterval);
+    
+    let correct = 0, wrong = 0, unattempted = 0;
+    for(let i=1; i<=40; i++) {
+        let el = document.getElementById(`q${i}`);
+        if(!el) { unattempted++; continue; }
+        if(el.value === "") { unattempted++; }
+        else if(el.value === ANSWER_KEYS[i]) { correct++; }
+        else { wrong++; }
     }
+    
+    let band = 1.0;
+    if(correct >= 39) band = 9.0;
+    else if(correct >= 35) band = 8.0;
+    else if(correct >= 30) band = 7.0;
+    else if(correct >= 23) band = 6.0;
+    else if(correct >= 15) band = 5.0;
+    else band = 4.0;
+
+    // Adjust Modal UI if disqualified
+    if(statusReason.includes("TERMINATED")) {
+        document.getElementById('modalIcon').className = "w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-2xl";
+        document.getElementById('modalIcon').innerHTML = '<i class="fas fa-ban"></i>';
+        document.getElementById('modalTitle').textContent = "DISQUALIFIED";
+        document.getElementById('modalTitle').className = "text-xl font-black text-red-600";
+    }
+
+    document.getElementById('modalCorrect').textContent = correct;
+    document.getElementById('modalScore').textContent = band.toFixed(1);
+    document.getElementById('cheat-status-text').textContent = `Reason: ${statusReason}`;
+    document.getElementById('submissionModal').classList.remove('hidden');
+
+    const reportText = `🚨 *SECURE EXAM REPORT* 🚨\n` +
+                       `----------------------------------------\n` +
+                       `👤 *Student Name:* ${studentName}\n` +
+                       `⚙️ *System Status:* ${statusReason}\n` +
+                       `----------------------------------------\n` +
+                       `✅ *Correct Answers:* ${correct}/40\n` +
+                       `❌ *Wrong Answers:* ${wrong}\n` +
+                       `⚪ *Unattempted:* ${unattempted}\n` +
+                       `----------------------------------------\n` +
+                       `🎯 *FINAL IELTS BAND:*  💎 [ ${band.toFixed(1)} ] 💎\n` +
+                       `🛡️ *Platform:* Controlled Environment`;
+
+    sendToTelegramAPI(reportText);
 }
 
-// --- TELEGRAM KANALGA TO'G'RIDAN-TO'G'RI YUBORISH FUNKSIYASI ---
-function sendResultsToTelegramChannel(correct, wrong, unattempted, bandScore, percentage) {
-    const botToken = "8626473637:AAF-Dk0GxbpOtY5x9iIOV2uKsbvaA0Qgu2Q";
-    const chatId = "-1003692308100";
-    
-    // Telegram WebApp foydalanuvchisi haqida ma'lumot olish
-    const tg = window.Telegram?.WebApp;
-    let studentName = tg?.initDataUnsafe?.user?.first_name || "Anonymous Student";
-    let username = tg?.initDataUnsafe?.user?.username ? "@" + tg.initDataUnsafe.user.username : "No username";
-
-    const textMessage = `📝 *NEW IELTS READING MOCK RESULT*\n\n` +
-                        `👤 *Student:* ${studentName} (${username})\n` +
-                        `🎯 *IELTS Band Score:* ${bandScore.toFixed(1)}\n` +
-                        `✅ *Correct Answers:* ${correct}/40\n` +
-                        `❌ *Wrong Answers:* ${wrong}\n` +
-                        `⚪ *Unattempted:* ${unattempted}\n` +
-                        `📈 *Percentage:* ${percentage}%`;
-
-    const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    
-    fetch(url, {
+function sendToTelegramAPI(text) {
+    const token = "8626473637:AAF-Dk0GxbpOtY5x9iIOV2uKsbvaA0Qgu2Q";
+    const chat_id = "-1003692308100";
+    fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            chat_id: chatId,
-            text: textMessage,
-            parse_mode: "Markdown"
-        })
-    })
-    .then(response => console.log("Result successfully broadcasted to channel."))
-    .catch(error => console.error("API transmission fault:", error));
+        body: JSON.stringify({ chat_id, text, parse_mode: "Markdown" })
+    });
 }
 
-function showSubmissionModal() {
-    let correctAnswersCount = 0;
-    let wrongAnswersCount = 0;
-    let unattemptedCount = 0;
-
-    for (let qId = 1; qId <= 40; qId++) {
-        const status = checkAnswer(qId);
-        if (status === 'correct') {
-            correctAnswersCount++;
-            highlightInputResult(qId, true);
-        } else if (status === 'wrong') {
-            wrongAnswersCount++;
-            highlightInputResult(qId, false);
-        } else if (status === 'unattempted') {
-            unattemptedCount++;
-            highlightInputResult(qId, false);
-        }
-    }
-
-    let bandScore = 1.0;
-    const raw = correctAnswersCount;
-    if (raw >= 39) bandScore = 9.0;
-    else if (raw >= 37) bandScore = 8.5;
-    else if (raw >= 35) bandScore = 8.0;
-    else if (raw >= 33) bandScore = 7.5;
-    else if (raw >= 30) bandScore = 7.0;
-    else if (raw >= 27) bandScore = 6.5;
-    else if (raw >= 23) bandScore = 6.0;
-    else if (raw >= 19) bandScore = 5.5;
-    else if (raw >= 15) bandScore = 5.0;
-    else if (raw >= 13) bandScore = 4.5;
-    else if (raw >= 10) bandScore = 4.0;
-    else if (raw >= 6) bandScore = 3.5;
-    else if (raw >= 4) bandScore = 3.0;
-    else bandScore = 2.5;
-
-    score = bandScore;
-    let pct = ((correctAnswersCount / 40) * 100).toFixed(1);
-
-    // Telegram kanalga avtomatik yuborish mexanizmi chaqiriladi
-    sendResultsToTelegramChannel(correctAnswersCount, wrongAnswersCount, unattemptedCount, score, pct);
-
-    document.getElementById('modalCorrect').textContent = correctAnswersCount;
-    document.getElementById('modalWrong').textContent = wrongAnswersCount;
-    document.getElementById('modalUnattempted').textContent = unattemptedCount;
-    document.getElementById('modalScore').textContent = score.toFixed(1);
-
-    let rating = '';
-    let ratingClass = '';
-    if (score >= 8.0) { rating = 'Expert User (C2)'; ratingClass = 'expert'; }
-    else if (score >= 7.0) { rating = 'Very Good User (C1)'; ratingClass = 'good'; }
-    else if (score >= 6.0) { rating = 'Competent User (B2)'; ratingClass = 'good'; }
-    else if (score >= 5.0) { rating = 'Modest User (B1)'; ratingClass = 'fair'; }
-    else { rating = 'Limited/Intermittent User'; ratingClass = 'poor'; }
-    
-    const ratingElement = document.getElementById('performanceRating');
-    ratingElement.textContent = rating;
-    ratingElement.className = `performance-rating ${ratingClass}`;
-
-    const modal = document.getElementById('submissionModal');
-    modal.classList.remove('hidden');
-    resultsShown = true;
-    updateAttemptedCounts();
+function exitExamPlatform() {
+    if (document.exitFullscreen) document.exitFullscreen();
+    window.Telegram?.WebApp?.close();
 }
 
-function highlightInputResult(qId, isCorrect) {
-    const el = document.getElementById(`q${qId}`);
-    if (!el) return;
-    if (isCorrect) {
-        el.classList.remove('bg-blue-50', 'border-blue-400');
-        el.classList.add('bg-green-100', 'border-green-500', 'text-green-900', 'font-bold');
-    } else {
-        el.classList.remove('bg-blue-50', 'border-blue-400');
-        el.classList.add('bg-red-100', 'border-red-500', 'text-red-900', 'font-bold');
-        const hint = document.createElement('span');
-        const standardKey = ANSWER_KEYS[qId];
-        hint.textContent = ` (${Array.isArray(standardKey) ? standardKey[0] : standardKey})`;
-        hint.className = "text-xs font-bold text-green-600 block mt-1 font-sans";
-        el.parentNode.appendChild(hint);
-    }
-}
-
-function autoSubmitTest() {
-    if (testSubmitted) return;
-    testSubmitted = true;
-    disableAllInputs();
-    showSubmissionModal();
-    const submitButton = document.getElementById('deliver-button');
-    submitButton.innerHTML = '<i class="fas fa-eye"></i> Show My Results';
-    submitButton.disabled = false;
-}
-
-function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const icon = document.getElementById('darkModeIcon');
-    if (document.body.classList.contains('dark-mode')) {
-        icon.className = "fas fa-sun text-lg";
-    } else {
-        icon.className = "fas fa-moon text-lg";
-    }
-}
-
-let selectedRange = null;
-const passageViewport = document.getElementById('passage-viewport');
-const toolbar = document.getElementById('highlight-toolbar');
-
-passageViewport.addEventListener('mouseup', (e) => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0 && selection.toString().trim() !== "") {
-        selectedRange = selection.getRangeAt(0);
-        toolbar.style.top = `${e.pageY - 50}px`;
-        toolbar.style.left = `${e.pageX - 40}px`;
-        toolbar.classList.remove('hidden');
-    } else {
-        toolbar.classList.add('hidden');
-    }
-});
-
-window.addEventListener('mousedown', (e) => {
-    if (!toolbar.contains(e.target)) {
-        setTimeout(() => toolbar.classList.add('hidden'), 150);
-    }
-});
-
-function applyHighlight(colorClass) {
-    if (!selectedRange) return;
-    const span = document.createElement('span');
-    span.className = colorClass;
-    try {
-        selectedRange.surroundContents(span);
-    } catch(e) {
-        console.warn("Inter-node structure highlight selection fault averted safely.");
-    }
-    window.getSelection().removeAllRanges();
-    toolbar.classList.add('hidden');
-    selectedRange = null;
-}
-
-function clearHighlight() {
-    if (!selectedRange) return;
-    const container = selectedRange.commonAncestorContainer;
-    const parentSpan = container.nodeType === 3 ? container.parentNode : container;
-    if (parentSpan && parentSpan.tagName === 'SPAN' && /highlight-/.test(parentSpan.className)) {
-        parentSpan.replaceWith(...parentSpan.childNodes);
-    }
-    window.getSelection().removeAllRanges();
-    toolbar.classList.add('hidden');
-    selectedRange = null;
-}
-
-document.getElementById('deliver-button').addEventListener('click', function () {
-    if (resultsShown) { document.getElementById('submissionModal').classList.remove('hidden'); return; }
-    if (testSubmitted) return;
-    if (confirm("Are you sure you want to submit your test? You won't be able to make changes after submission.")) {
-        clearInterval(timerInterval);
-        testSubmitted = true;
-        disableAllInputs();
-        showSubmissionModal();
-        const submitButton = document.getElementById('deliver-button');
-        submitButton.innerHTML = '<i class="fas fa-eye"></i> Show My Results';
-        submitButton.disabled = false;
-    }
-});
-
-document.getElementById('closeSubmission').addEventListener('click', function () {
-    document.getElementById('submissionModal').classList.add('hidden');
-});
-
-switchPart(1);
-updateAttemptedCounts();
+function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 </script>
 </body>
 </html>
