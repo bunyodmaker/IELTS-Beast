@@ -38,7 +38,7 @@ class handler(BaseHTTPRequestHandler):
             }).encode())
         except Exception as e:
             err = traceback.format_exc()
-            print(err)
+            print("SUBMIT XATOLIK:", err)
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
@@ -82,6 +82,7 @@ class handler(BaseHTTPRequestHandler):
                 )
                 row = cur.fetchone()
                 if not row:
+                    print(f"Result ID {result_id} topilmadi")
                     return
                 name, score, band, time_spent, submitted_at = row
                 caption = (
@@ -92,26 +93,26 @@ class handler(BaseHTTPRequestHandler):
                     f"⏱ **Vaqt:** {time_spent} daqiqa\n"
                     f"📅 **Sana:** {submitted_at.strftime('%d.%m.%Y %H:%M')}"
                 )
+                # Grafik URL (quickchart.io)
+                wrong = 40 - score
+                chart_url = f"https://quickchart.io/chart?c={{type:'doughnut',data:{{labels:['To‘g‘ri ({score})', 'Xato ({wrong})'], datasets:[{{data:[{score},{wrong}], backgroundColor:['#48bb78','#fc8181']}}]}}}}"
+                caption += f"\n\n📊 Grafik: {chart_url}"
             finally:
                 cur.close()
                 conn.close()
             
-            # QuickChart yordamida grafik yaratish
-            wrong = 40 - score
-            chart_url = f"https://quickchart.io/chart?c={{type:'doughnut',data:{{labels:['To‘g‘ri ({score})', 'Xato ({wrong})'], datasets:[{{data:[{score},{wrong}], backgroundColor:['#48bb78','#fc8181']}}]}}}}"
-            
-            # Send photo with caption
-            send_photo_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto"
+            # Xabarni matn sifatida yuborish (grafik URL bilan)
+            url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
             payload = json.dumps({
                 "chat_id": CHANNEL_ID,
-                "photo": chart_url,
-                "caption": caption,
-                "parse_mode": "Markdown"
+                "text": caption,
+                "parse_mode": "Markdown",
+                "disable_web_page_preview": False  # Grafik preview chiqsin
             }).encode()
-            req = urllib.request.Request(send_photo_url, data=payload, method='POST')
+            req = urllib.request.Request(url, data=payload, method='POST')
             req.add_header('Content-Type', 'application/json')
             response = urllib.request.urlopen(req)
-            print(f"Kanalga grafik yuborildi: {response.read().decode()}")
+            print(f"Kanalga xabar yuborildi: {response.read().decode()}")
         except Exception as e:
             print(f"Kanalga yuborishda xatolik: {e}")
             traceback.print_exc()
