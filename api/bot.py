@@ -4,7 +4,7 @@ import asyncio
 import traceback
 from http.server import BaseHTTPRequestHandler
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler
+from telegram.ext import Application, CommandHandler, ContextTypes
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
@@ -18,12 +18,10 @@ class handler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_length)
             data = json.loads(body)
             
-            # Bot application yaratish
             app = Application.builder().token(BOT_TOKEN).build()
             app.add_handler(CommandHandler("start", start))
             app.add_handler(CommandHandler("help", help_command))
             
-            # Update ni qayta ishlash (async)
             update = Update.de_json(data, app.bot)
             asyncio.run(app.process_update(update))
             
@@ -31,20 +29,18 @@ class handler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"OK")
         except Exception as e:
-            # Xatolikni logga chiqarish
             err = traceback.format_exc()
             print(err)
             self.send_response(500)
             self.end_headers()
-            self.wfile.write(f"Error: {e}".encode())
+            self.wfile.write(f"Error: {e}\n{err}".encode())
 
     def do_GET(self):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(b"Webhook is active")
 
-# Handler funksiyalar (async)
-async def start(update: Update, context):
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Assalomu alaykum! Testni boshlash uchun tugmani bosing:",
         reply_markup=InlineKeyboardMarkup([
@@ -52,7 +48,7 @@ async def start(update: Update, context):
         ])
     )
 
-async def help_command(update: Update, context):
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "/start - testni boshlash\n/help - yordam"
     )
