@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IELTS Admin Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -12,194 +14,106 @@
             padding: 20px;
             color: #1a202c;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        h1 {
-            color: #2b6cb0;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        h1 { color: #2b6cb0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .login-box {
-            max-width: 400px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px; margin: 100px auto; background: white; padding: 40px;
+            border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             text-align: center;
         }
-        .login-box input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #cbd5e0;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: #2b6cb0;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            cursor: pointer;
-        }
+        .login-box input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #cbd5e0; border-radius: 8px; }
+        .login-box button { width: 100%; padding: 12px; background: #2b6cb0; color: white; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; }
         .login-box button:hover { background: #1a4f7a; }
         .login-box .error { color: #e53e3e; margin-top: 10px; display: none; }
-        
+        .hidden { display: none; }
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 20px; margin: 30px 0;
         }
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            text-align: center;
-        }
-        .stat-card .number {
-            font-size: 32px;
-            font-weight: 700;
-            color: #2b6cb0;
-        }
-        .stat-card .label {
-            font-size: 14px;
-            color: #4a5568;
-            margin-top: 5px;
-        }
-        
-        table {
-            width: 100%;
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            margin-top: 20px;
-        }
-        th {
-            background: #2b6cb0;
-            color: white;
-            padding: 12px 16px;
-            text-align: left;
-        }
-        td {
-            padding: 10px 16px;
-            border-bottom: 1px solid #edf2f7;
-        }
+        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+        .stat-card .number { font-size: 32px; font-weight: 700; color: #2b6cb0; }
+        .stat-card .label { font-size: 14px; color: #4a5568; margin-top: 5px; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+        .chart-box { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .chart-box h3 { margin-bottom: 10px; color: #2d3748; }
+        table { width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 20px; }
+        th { background: #2b6cb0; color: white; padding: 12px 16px; text-align: left; }
+        td { padding: 10px 16px; border-bottom: 1px solid #edf2f7; }
         tr:hover { background: #f7fafc; }
-        .badge {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 600;
-        }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 13px; font-weight: 600; }
         .badge-high { background: #c6f6d5; color: #22543d; }
         .badge-mid { background: #fefcbf; color: #975a16; }
         .badge-low { background: #fed7d7; color: #9b2c2c; }
         .loading { text-align: center; padding: 40px; color: #4a5568; }
-        .hidden { display: none; }
-        .refresh-btn {
-            background: #48bb78;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-left: 15px;
-        }
-        .refresh-btn:hover { background: #38a169; }
-        .header-actions {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .logout-btn {
-            background: #e53e3e;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .logout-btn:hover { background: #c53030; }
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            table { font-size: 13px; }
-            td, th { padding: 8px 10px; }
-        }
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .btn { padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; color: white; }
+        .btn-refresh { background: #48bb78; }
+        .btn-refresh:hover { background: #38a169; }
+        .btn-pdf { background: #e53e3e; }
+        .btn-pdf:hover { background: #c53030; }
+        .btn-logout { background: #718096; }
+        .btn-logout:hover { background: #4a5568; }
+        @media (max-width: 700px) { .chart-grid { grid-template-columns: 1fr; } }
+        #pdfContent { background: white; padding: 20px; border-radius: 12px; }
     </style>
 </head>
 <body>
-<div class="container" id="app">
-    <!-- Login form -->
+<div id="app">
+    <!-- Login -->
     <div id="loginBox" class="login-box">
-        <h2 style="margin-bottom:20px;">🔐 Admin kirish</h2>
+        <h2>🔐 Admin kirish</h2>
         <input type="password" id="passwordInput" placeholder="Parolni kiriting" />
         <button onclick="login()">Kirish</button>
         <div id="loginError" class="error">Noto‘g‘ri parol</div>
     </div>
 
-    <!-- Admin panel -->
+    <!-- Panel -->
     <div id="adminPanel" class="hidden">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
-            <h1>📊 IELTS Admin Panel</h1>
-            <div class="header-actions">
-                <button class="refresh-btn" onclick="loadData()">🔄 Yangilash</button>
-                <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
+        <div class="container">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <h1>📊 IELTS Admin Panel</h1>
+                <div class="header-actions">
+                    <button class="btn btn-refresh" onclick="loadData()">🔄 Yangilash</button>
+                    <button class="btn btn-pdf" onclick="exportPDF()">📄 PDF eksport</button>
+                    <button class="btn btn-logout" onclick="logout()">🚪 Chiqish</button>
+                </div>
             </div>
-        </div>
-        <p style="color:#4a5568; margin-bottom:20px;">Barcha test natijalari va statistika</p>
+            <p style="color:#4a5568; margin-bottom:20px;">Barcha test natijalari va statistika</p>
 
-        <!-- Statistika kartalari -->
-        <div class="stats-grid" id="statsGrid">
-            <div class="stat-card"><div class="number" id="totalTests">-</div><div class="label">Jami testlar</div></div>
-            <div class="stat-card"><div class="number" id="avgScore">-</div><div class="label">O‘rtacha ball</div></div>
-            <div class="stat-card"><div class="number" id="maxScore">-</div><div class="label">Eng yuqori ball</div></div>
-            <div class="stat-card"><div class="number" id="avgBand">-</div><div class="label">O‘rtacha Band</div></div>
-            <div class="stat-card"><div class="number" id="weekCount">-</div><div class="label">Bu hafta</div></div>
-            <div class="stat-card"><div class="number" id="weekAvg">-</div><div class="label">Haftalik o‘rtacha</div></div>
-        </div>
+            <div id="statsGrid" class="stats-grid">
+                <div class="stat-card"><div class="number" id="totalTests">-</div><div class="label">Jami testlar</div></div>
+                <div class="stat-card"><div class="number" id="avgScore">-</div><div class="label">O‘rtacha ball</div></div>
+                <div class="stat-card"><div class="number" id="maxScore">-</div><div class="label">Eng yuqori ball</div></div>
+                <div class="stat-card"><div class="number" id="avgBand">-</div><div class="label">O‘rtacha Band</div></div>
+                <div class="stat-card"><div class="number" id="weekCount">-</div><div class="label">Bu hafta</div></div>
+                <div class="stat-card"><div class="number" id="weekAvg">-</div><div class="label">Haftalik o‘rtacha</div></div>
+            </div>
 
-        <!-- Natijalar jadvali -->
-        <h2 style="margin:30px 0 10px;">📋 So‘nggi natijalar</h2>
-        <div id="loadingIndicator" class="loading">⏳ Yuklanmoqda...</div>
-        <div id="tableWrapper" class="hidden">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Ism</th>
-                        <th>Ball (40)</th>
-                        <th>Band</th>
-                        <th>Vaqt (daqiqa)</th>
-                        <th>Sana</th>
-                    </tr>
-                </thead>
-                <tbody id="resultsBody"></tbody>
-            </table>
+            <div id="pdfContent">
+                <div class="chart-grid">
+                    <div class="chart-box"><h3>📈 Haftalik trend</h3><canvas id="trendChart"></canvas></div>
+                    <div class="chart-box"><h3>📊 Band taqsimoti</h3><canvas id="distChart"></canvas></div>
+                </div>
+
+                <h2 style="margin:30px 0 10px;">📋 So‘nggi natijalar</h2>
+                <div id="loadingIndicator" class="loading">⏳ Yuklanmoqda...</div>
+                <div id="tableWrapper" class="hidden">
+                    <table>
+                        <thead><tr><th>#</th><th>Ism</th><th>Ball</th><th>Band</th><th>Vaqt</th><th>Sana</th></tr></thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 <script>
-    const ADMIN_PASSWORD = 'admin123'; // Parolni xohlaganingizga o'zgartiring
+    const ADMIN_PASSWORD = 'admin123';
+    let trendChart = null, distChart = null;
 
     function login() {
-        const password = document.getElementById('passwordInput').value;
-        if (password === ADMIN_PASSWORD) {
+        const pwd = document.getElementById('passwordInput').value;
+        if (pwd === ADMIN_PASSWORD) {
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('adminPanel').classList.remove('hidden');
             document.getElementById('loginError').style.display = 'none';
@@ -208,73 +122,91 @@
             document.getElementById('loginError').style.display = 'block';
         }
     }
-
     function logout() {
         document.getElementById('loginBox').style.display = 'block';
         document.getElementById('adminPanel').classList.add('hidden');
         document.getElementById('passwordInput').value = '';
     }
+    document.getElementById('passwordInput').addEventListener('keydown', e => { if(e.key === 'Enter') login(); });
 
-   async function loadData() {
-    const loading = document.getElementById('loadingIndicator');
-    const tableWrapper = document.getElementById('tableWrapper');
-    loading.classList.remove('hidden');
-    tableWrapper.classList.add('hidden');
+    async function loadData() {
+        document.getElementById('loadingIndicator').classList.remove('hidden');
+        document.getElementById('tableWrapper').classList.add('hidden');
 
-    try {
-        const response = await fetch('/api/admin_stats.py?password=' + ADMIN_PASSWORD);
-        if (!response.ok) {
-            // Xatolik matnini o'qib, chiqaramiz
-            const text = await response.text();
-            throw new Error('Server javobi: ' + response.status + ' - ' + text);
+        try {
+            const res = await fetch('/api/admin_stats.py?password=' + ADMIN_PASSWORD);
+            if(!res.ok) throw new Error('Server error: ' + res.status);
+            const data = await res.json();
+
+            document.getElementById('totalTests').textContent = data.total || 0;
+            document.getElementById('avgScore').textContent = data.avg_score || 0;
+            document.getElementById('maxScore').textContent = data.max_score || 0;
+            document.getElementById('avgBand').textContent = data.avg_band || 0;
+            document.getElementById('weekCount').textContent = data.week_count || 0;
+            document.getElementById('weekAvg').textContent = data.week_avg || 0;
+
+            // Jadval
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            if(data.recent && data.recent.length > 0) {
+                data.recent.forEach((r, i) => {
+                    let badge = 'badge-mid';
+                    if(r.band >= 7) badge = 'badge-high';
+                    else if(r.band < 5) badge = 'badge-low';
+                    tbody.innerHTML += `<tr>
+                        <td>${i+1}</td>
+                        <td>${r.name}</td>
+                        <td>${r.score}</td>
+                        <td><span class="badge ${badge}">${r.band}</span></td>
+                        <td>${r.time}</td>
+                        <td>${r.date ? new Date(r.date).toLocaleString('uz-UZ') : '-'}</td>
+                    </tr>`;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Natijalar yo‘q</td></tr>';
+            }
+
+            // Grafiklar
+            renderCharts(data);
+
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('tableWrapper').classList.remove('hidden');
+        } catch(e) {
+            document.getElementById('loadingIndicator').textContent = '❌ Xatolik: ' + e.message;
+            document.getElementById('loadingIndicator').classList.remove('hidden');
         }
-        const data = await response.json();
-        
-        // Statistikani yangilash
-        document.getElementById('totalTests').textContent = data.total || 0;
-        document.getElementById('avgScore').textContent = data.avg_score || 0;
-        document.getElementById('maxScore').textContent = data.max_score || 0;
-        document.getElementById('avgBand').textContent = data.avg_band || 0;
-        document.getElementById('weekCount').textContent = data.week_count || 0;
-        document.getElementById('weekAvg').textContent = data.week_avg || 0;
-
-        // Jadvalni to'ldirish
-        const tbody = document.getElementById('resultsBody');
-        tbody.innerHTML = '';
-        if (data.recent && data.recent.length > 0) {
-            data.recent.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                const band = row.band || 0;
-                let badgeClass = 'badge-mid';
-                if (band >= 7) badgeClass = 'badge-high';
-                else if (band < 5) badgeClass = 'badge-low';
-                
-                tr.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${row.name || 'Anonim'}</td>
-                    <td>${row.score || 0}</td>
-                    <td><span class="badge ${badgeClass}">${band}</span></td>
-                    <td>${row.time || 0}</td>
-                    <td>${row.date ? new Date(row.date).toLocaleString('uz-UZ') : '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        } else {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#4a5568;">Hozircha natijalar yo‘q</td></tr>';
-        }
-
-        loading.classList.add('hidden');
-        tableWrapper.classList.remove('hidden');
-    } catch (error) {
-        loading.textContent = '❌ Xatolik: ' + error.message;
-        loading.classList.remove('hidden');
     }
-}
 
-    // Enter tugmasi bilan login
-    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') login();
-    });
+    function renderCharts(data) {
+        // Trend
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const labels = data.weekly_trend?.map(d => d.date) || [];
+        const values = data.weekly_trend?.map(d => d.avg_score) || [];
+        if(trendChart) trendChart.destroy();
+        trendChart = new Chart(trendCtx, {
+            type: 'line',
+            data: { labels, datasets: [{ label: 'O‘rtacha ball', data: values, borderColor: '#2b6cb0', tension: 0.2 }] },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
+        // Distribution
+        const distCtx = document.getElementById('distChart').getContext('2d');
+        const dLabels = data.band_distribution?.map(d => d.range) || [];
+        const dValues = data.band_distribution?.map(d => d.count) || [];
+        const colors = ['#48bb78', '#f6ad55', '#fc8181', '#9f7aea', '#4a5568'];
+        if(distChart) distChart.destroy();
+        distChart = new Chart(distCtx, {
+            type: 'doughnut',
+            data: { labels: dLabels, datasets: [{ data: dValues, backgroundColor: colors.slice(0, dLabels.length) }] },
+            options: { responsive: true }
+        });
+    }
+
+    function exportPDF() {
+        const element = document.getElementById('pdfContent');
+        const opt = { margin: 0.5, filename: 'IELTS_Admin_Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
+        html2pdf().set(opt).from(element).save();
+    }
 </script>
 </body>
 </html>
